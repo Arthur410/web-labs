@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tetris</title>
+  <style>
+      canvas {
+          border: 1px solid #222;
+          display: block;
+          margin: 20px auto;
+      }
+      #welcomeMessage {
+          margin-bottom: 20px;
+      }
+  </style>
+</head>
+<body>
+  <div class="container" style="display: grid; grid-template-columns: 250px 1fr">
+    <div id="welcomeMessage">
+      <h2>Игра тетрис</h2>
+      <input id="userNameInput" type="text">
+
+      <button id="userNameButton">
+        Ввод
+      </button>
+
+      <div id="score" style="margin-top: 15px;">
+        Player: <span id="playerName"></span> | Score: <span id="currentScore"></span>
+      </div>
+
+      <button id="startButton">Start Game</button>
+    </div>
+    <canvas id="tetrisCanvas" width="240" height="480"></canvas>
+  </div>
+  <script src="./src/main.ts"></script>
+</body>
+</html>
