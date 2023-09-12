@@ -1,34 +1,52 @@
+import {pieces} from "./pieces";
+import {availableColors} from "./availableColors";
+
 document.addEventListener('DOMContentLoaded', () => {
   const tickRate = 500;
-  const canvas = document.getElementById('tetrisCanvas');
+  const canvas = document.getElementById('canvas');
   const canvasContext = canvas.getContext('2d');
   const field = createField(10, 20);
-  const pieceColors = [
-    'red',
-    'green',
-    'blue',
-    'orange',
-    'aqua',
-    'chocolate',
-    'deeppink'
-  ];
 
   let piece;
   let currentScore = 0;
   let gameLoop;
   let isGameOver = false;
-  let playerName = '';
 
-  const playerNameSpan = document.getElementById('playerName');
+  const playerNameText = document.getElementById('playerName');
   const scoreContainer = document.getElementById('currentScore');
-  const userNameInput = document.getElementById('userNameInput')
+  const playerNameInput = document.getElementById('playerNameInput');
+  const playerNameButton = document.getElementById('playerNameButton');
+  const startButton = document.getElementById('startButton');
+
+  let storedName = getPlayerName();
+  if (storedName) {
+    playerNameText.textContent = storedName;
+    disablePlayerForm();
+  }
+
+  function disablePlayerForm() {
+    playerNameInput.style.display = "none";
+    playerNameButton.style.display = "none";
+  }
 
   function getPlayerName() {
-
+    const storedPlayerName = localStorage.getItem('playerName');
+    if (storedPlayerName) {
+      return storedPlayerName;
+    } else {
+      return '';
+    }
   }
 
   function setPlayerName() {
+    const inputName = playerNameInput.value;
+    if (inputName.trim() !== '') {
+      localStorage.setItem('playerName', inputName);
+      storedName = inputName;
+      playerNameText.textContent = inputName
 
+      disablePlayerForm();
+    }
   }
 
   function drawField() {
@@ -48,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function drawSquare(x, y, colorIndex) {
     const SQUARE_SIZE = 24;
 
-    canvasContext.fillStyle = pieceColors[colorIndex - 1];
+    canvasContext.fillStyle = availableColors[colorIndex - 1];
     canvasContext.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
     canvasContext.strokeStyle = 'gray';
     canvasContext.strokeRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
@@ -67,35 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Функция для создания фигур
   function createPiece() {
-    const pieces = [
-      // палка
-      [
-        [1, 1, 1, 1]
-      ],
-      // кубик
-      [
-        [1, 1],
-        [1, 1]
-      ],
-      // буква Г
-      [
-        [0, 0, 1],
-        [1, 1, 1]
-      ],
-      // зигзаг
-      [
-        [0, 1, 1],
-        [1, 1, 0]
-      ],
-      // джостик
-      [
-        [0, 1, 0],
-        [1, 1, 1]
-      ],
-    ];
-
     const getRandomPiece = Math.floor(Math.random() * pieces.length);
-    const getRandomColorIndex = Math.floor(Math.random() * pieceColors.length) + 1;
+    const getRandomColorIndex = Math.floor(Math.random() * availableColors.length) + 1;
     return {
       matrix: pieces[getRandomPiece],
       colorIndex: getRandomColorIndex,
@@ -157,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
     piece.matrix = tempMatrix;
 
     if (hasCollision()) {
-      // Revert the rotation
       piece.matrix = matrix;
     }
   }
@@ -180,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (hasCollision()) {
         clearInterval(gameLoop);
-        alert(`Game Over! ${playerName} Your final Score: ${currentScore}`);
+        alert(`Game Over! ${storedName} Your final Score: ${currentScore}`);
         isGameOver = true;
       }
     }
@@ -193,28 +183,24 @@ document.addEventListener('DOMContentLoaded', () => {
         field.unshift(new Array(10).fill(0));
         currentScore++;
 
-        if (currentScore == 5 && playerName == 'Boyfriend!') {
+        if (currentScore > 5) {
           clearInterval(gameLoop);
-          alert('Congratulations ' + playerName + '!');
+          alert('Congratulations ' + storedName + '!');
           isGameOver = true;
         }
-
-        if (currentScore == 10){
-          clearInterval(gameLoop);
-          alert('Congratulations ' + playerName + '!');
-          isGameOver = true;
-        }
-
       }
     }
   }
 
-  function update() {
+  function update(isIntervalMode = true) {
+    if (isIntervalMode) {
+      dropPiece();
+      updateScore();
+    }
+
     drawField();
-    dropPiece();
     clearLines();
     drawPiece();
-    updateScore();
   }
 
   function updateScore() {
@@ -250,32 +236,29 @@ document.addEventListener('DOMContentLoaded', () => {
         rotate();
         break;
     }
+
+    update(false);
   }
 
-  function restartGame() {
+  function startNewGame() {
     isGameOver = false;
     piece = createPiece();
     currentScore = 0;
     field.forEach(row => row.fill(0));
     scoreContainer.textContent = currentScore;
     gameLoop = setInterval(update, tickRate);
+    drawField();
   }
 
-  document.getElementById('startButton').addEventListener('click', () => {
+  startButton.addEventListener('click', () => {
     if (!gameLoop && !isGameOver) {
-      piece = createPiece();
-      currentScore = 0;
-      field.forEach(row => row.fill(0));
-      scoreContainer.textContent = currentScore;
-      gameLoop = setInterval(update, tickRate);
+      startNewGame()
       document.addEventListener('keydown', handleKeyPress);
-      drawField();
     } else if (isGameOver) {
-      restartGame();
+      startNewGame();
     }
   });
 
-  document.getElementById('restartButton').addEventListener('click', restartGame);
 
-  document.getElementById('userNameButton').addEventListener('click', setPlayerName);
+  playerNameButton.addEventListener('click', setPlayerName);
 });
