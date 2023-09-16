@@ -4,35 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tetris</title>
-  <style>
-      canvas {
-          border: 1px solid #222;
-          display: block;
-          margin: 20px auto;
-      }
-      #welcomeMessage {
-          margin-bottom: 20px;
-      }
-  </style>
+  <link rel="stylesheet" type="text/css" href="./src/style.css">
 </head>
 <body>
-  <div class="container" style="display: grid; grid-template-columns: 250px 1fr">
-    <div id="welcomeMessage">
-      <h2>Игра тетрис</h2>
-      <input id="playerNameInput" type="text">
+  <main class="main-page">
+    <div class="container">
+      <div class="main-page__info" id="infoContainer">
+        <h2 class="main-page__info-title">Игра тетрис</h2>
+        <div class="spacer"></div>
 
-      <button id="playerNameButton">
-        Ввод
-      </button>
+        <div class="main-page__info-block">
+          <div id="loginInfo">
+            <label for="playerNameInput">Введите ваше имя:</label>
+            <div class="spacer"></div>
+            <input id="playerNameInput" type="text">
+            <div class="spacer"></div>
+            <button class="button" id="playerNameButton">Ввод</button>
+            <div class="spacer"></div>
+          </div>
+          <div class="spacer"></div>
 
-      <div id="score" style="margin-top: 15px;">
-        Player: <span id="playerName"></span> | Score: <span id="currentScore"></span>
+          <div id="gameInfo">
+            <div id="score">
+              Player: <span id="playerName"></span> |
+              Score: <span id="currentScore"></span>
+            </div>
+            <div class="spacer"></div>
+            <button id="startButton" style="font-size: 18px">Start Game</button>
+          </div>
+        </div>
       </div>
-
-      <button id="startButton">Start Game</button>
+      <div class="main-page__canvas" id="canvasContainer">
+        <div id="gameLogger">
+          <button id="restartGame">Restart Game</button>
+          <div class="spacer"></div>
+          <p id="gameLogMessage"></p>
+        </div>
+        <canvas style="background:black" id="canvas" width="240" height="480"></canvas>
+      </div>
+      <div class="main-page__score-table">
+        <h1 style="font-size: 18px">Лучшие:</h1>
+        <div id="scoreTable" style="font-size: 16px;"></div>
+      </div>
+      <div id="guideBlock" class="main-page__guide">
+        <img width="100px" src="./src/assets/keyboard.png" alt="">
+        <p>Управляйте стрелками ← → ↓</p>
+        <img width="70px" height="30px" src="./src/assets/space.webp" alt="">
+        <p>Пробел для поворота</p>
+        <span id="closeGuide">x</span>
+      </div>
+      <button id="openGuide" class="main-page__guide_open">Управление</button>
+      <div id="soundToggler">
+        <img id="soundTogglerIcon" width="30px" height="30px" src="./src/assets/soundOn.svg" alt="Звезда">
+      </div>
     </div>
-    <canvas id="canvas" width="240" height="480"></canvas>
-  </div>
+  </main>
   <script src="./src/main.ts"></script>
 </body>
 </html>

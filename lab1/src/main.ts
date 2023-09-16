@@ -1,8 +1,55 @@
-import {pieces} from "./pieces";
-import {availableColors} from "./availableColors";
+const pieces = [
+  // палка
+  [
+    [1, 1, 1, 1]
+  ],
+  // кубик
+  [
+    [1, 1],
+    [1, 1]
+  ],
+  // буква Г
+  [
+    [0, 0, 1],
+    [1, 1, 1]
+  ],
+  [
+    [1, 0, 0],
+    [1, 1, 1]
+  ],
+  // зигзаг
+  [
+    [0, 1, 1],
+    [1, 1, 0]
+  ],
+  [
+    [1, 1, 0],
+    [0, 1, 1]
+  ],
+  // джостик
+  [
+    [0, 1, 0],
+    [1, 1, 1]
+  ],
+];
+
+const availableColors = [
+  '#530FAD',
+  '#A600A6',
+  '#CCF600',
+  '#FFE800',
+  '#FF0000',
+  '#00CC00',
+  '#FF7400'
+];
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
-  const tickRate = 500;
+  const firstLevelTickRate = 1000;
+  const secondLevelTickRate = 500;
+  const thirdLevelTickRate = 250;
+
   const canvas = document.getElementById('canvas');
   const canvasContext = canvas.getContext('2d');
   const field = createField(10, 20);
@@ -12,21 +59,52 @@ document.addEventListener('DOMContentLoaded', () => {
   let gameLoop;
   let isGameOver = false;
 
+  let isAudioEnabled = true;
+
   const playerNameText = document.getElementById('playerName');
-  const scoreContainer = document.getElementById('currentScore');
   const playerNameInput = document.getElementById('playerNameInput');
   const playerNameButton = document.getElementById('playerNameButton');
+
+  const scoreContainer = document.getElementById('currentScore');
   const startButton = document.getElementById('startButton');
+  const gameInfo = document.getElementById('gameInfo');
+
+  const canvasContainer = document.getElementById('canvasContainer');
+  const infoContainer = document.getElementById('infoContainer');
+  const loginInfo = document.getElementById('loginInfo');
+
+  const scoreTable = document.getElementById('scoreTable');
+  const gameLogger = document.getElementById('gameLogger');
+  let restartGame = document.getElementById('restartGame');
+
+  const closeGuide = document.getElementById('closeGuide');
+  const openGuide = document.getElementById('openGuide');
+  const guideBlock = document.getElementById('guideBlock');
+  const gameLogMessage = document.getElementById('gameLogMessage');
+
+  const soundToggler = document.getElementById('soundToggler')
+  const soundTogglerIcon = document.getElementById('soundTogglerIcon')
+
+  toggleGameLoggerView(false);
+  updateTableScores();
 
   let storedName = getPlayerName();
   if (storedName) {
     playerNameText.textContent = storedName;
-    disablePlayerForm();
+    hideLogin();
+    infoContainer.classList.add('inactive');
+    canvasContainer.classList.add('active');
+  } else {
+    infoContainer.classList.add('active');
+    canvasContainer.classList.add('inactive');
   }
 
-  function disablePlayerForm() {
-    playerNameInput.style.display = "none";
-    playerNameButton.style.display = "none";
+  function playAudio(name) {
+    if (!isAudioEnabled) return;
+
+    const audio = new Audio();
+    audio.src = `./src/assets/${name}.mp3`;
+    audio.autoplay = true;
   }
 
   function getPlayerName() {
@@ -40,14 +118,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setPlayerName() {
     const inputName = playerNameInput.value;
+
     if (inputName.trim() !== '') {
       localStorage.setItem('playerName', inputName);
       storedName = inputName;
       playerNameText.textContent = inputName
+    }
 
-      disablePlayerForm();
+    hideLogin();
+  }
+
+  function hideLogin() {
+    gameInfo.style.display = "flex";
+    gameInfo.style.flexDirection = "column";
+
+    infoContainer.style.width = "auto";
+    infoContainer.style.height = "auto";
+    scoreContainer.textContent = "0";
+    loginInfo.style.display = "none";
+  }
+
+  function toggleGameLoggerView(isShow) {
+    if (isShow) {
+      gameLogger.style.opacity = "1";
+      gameLogger.style.zIndex = "1";
+    } else {
+      gameLogger.style.opacity = "0";
+      gameLogger.style.zIndex = "-1";
     }
   }
+
 
   function drawField() {
     canvasContext.fillStyle = 'black';
@@ -169,8 +269,18 @@ document.addEventListener('DOMContentLoaded', () => {
       piece = createPiece();
 
       if (hasCollision()) {
+        const newScore = {
+          playerName: storedName,
+          score: currentScore,
+        };
+
         clearInterval(gameLoop);
-        alert(`Game Over! ${storedName} Your final Score: ${currentScore}`);
+        toggleGameLoggerView(true);
+        gameLogMessage.textContent = `Вы проиграли! Ваш счет ${currentScore}`
+
+        addBestScore(newScore);
+        updateTableScores();
+        playAudio('death');
         isGameOver = true;
       }
     }
@@ -183,11 +293,19 @@ document.addEventListener('DOMContentLoaded', () => {
         field.unshift(new Array(10).fill(0));
         currentScore++;
 
-        if (currentScore > 5) {
+        if (currentScore > 2) {
           clearInterval(gameLoop);
-          alert('Congratulations ' + storedName + '!');
-          isGameOver = true;
+          gameLoop = setInterval(update, secondLevelTickRate);
+          playAudio('win');
         }
+
+        if (currentScore > 3) {
+          clearInterval(gameLoop);
+          gameLoop = setInterval(update, thirdLevelTickRate);
+          playAudio('win');
+        }
+
+        playAudio('coin');
       }
     }
   }
@@ -222,6 +340,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleKeyPress(event) {
+    if (isGameOver) return;
+
     switch (event.key) {
       case 'ArrowLeft':
         movePiece(-1);
@@ -246,9 +366,51 @@ document.addEventListener('DOMContentLoaded', () => {
     currentScore = 0;
     field.forEach(row => row.fill(0));
     scoreContainer.textContent = currentScore;
-    gameLoop = setInterval(update, tickRate);
+    gameLoop = setInterval(update, firstLevelTickRate);
     drawField();
   }
+
+  function getBestScores() {
+    const storedScores = localStorage.getItem('bestScores');
+    if (storedScores) {
+      return JSON.parse(storedScores);
+    } else {
+      return [];
+    }
+  }
+
+  function addBestScore(newScore) {
+    const bestScores = getBestScores();
+    bestScores.push(newScore);
+
+    // Сортируем результаты в убывающем порядке (от большего к меньшему)
+    bestScores.sort((a, b) => b.score - a.score);
+
+    // Ограничиваем массив только пятью лучшими результатами
+    bestScores.splice(5);
+
+    localStorage.setItem('bestScores', JSON.stringify(bestScores));
+  }
+
+  function updateTableScores() {
+    const scores = getBestScores();
+
+    scoreTable.innerHTML = ''
+    for (let i = 0; i < scores.length; i++) {
+      scoreTable.innerHTML +=
+        `<p>${scores[i].playerName}: ${scores[i].score}</p>`
+    }
+  }
+
+  restartGame.addEventListener('click', () => {
+    if (!gameLoop && !isGameOver) {
+      startNewGame()
+      document.addEventListener('keydown', handleKeyPress);
+    } else if (isGameOver) {
+      startNewGame();
+    }
+    toggleGameLoggerView(false);
+  });
 
   startButton.addEventListener('click', () => {
     if (!gameLoop && !isGameOver) {
@@ -257,8 +419,41 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (isGameOver) {
       startNewGame();
     }
+    toggleGameLoggerView(false);
   });
 
+  playerNameButton.addEventListener('click', () => {
+    setPlayerName()
+    // Проверяем текущий класс .main-page__info
+    if (infoContainer.classList.contains('active')) {
+      // Если .main-page__info имеет класс active, меняем классы местами
+      infoContainer.classList.remove('active');
+      canvasContainer.classList.remove('inactive');
+      infoContainer.classList.add('inactive');
+      canvasContainer.classList.add('active');
+    } else {
+      // Если .main-page__info имеет класс inactive, меняем классы местами обратно
+      infoContainer.classList.remove('inactive');
+      canvasContainer.classList.remove('active');
+      infoContainer.classList.add('active');
+      canvasContainer.classList.add('inactive');
+    }
+  });
 
-  playerNameButton.addEventListener('click', setPlayerName);
+  closeGuide.addEventListener('click', () => {
+    guideBlock.style.display = "none";
+  })
+
+  openGuide.addEventListener('click', () => {
+    guideBlock.style.display = "flex";
+  })
+
+  soundToggler?.addEventListener('click', () => {
+    if (isAudioEnabled) {
+      soundTogglerIcon.setAttribute('src', './src/assets/soundOff.svg')
+    } else {
+      soundTogglerIcon.setAttribute('src', './src/assets/soundOn.svg')
+    }
+    isAudioEnabled = !isAudioEnabled;
+  })
 });

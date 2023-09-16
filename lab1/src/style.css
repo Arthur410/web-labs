@@ -1,97 +1,315 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/************************DEFAULT***************************/
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+* {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+:focus,
+:active {
+  outline: none;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+nav,
+footer,
+header,
+aside {
+  display: block;
+}
+
+.container {
+  padding: 0 !important;
+}
+
+html,
+body {
+  overflow-x: hidden !important;
+  font-family: "Poppins", sans-serif;
+  max-height: 100%;
+  width: 100%;
+  font-size: 100%;
+  line-height: 1;
+  font-size: 14px;
+  -ms-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+input,
+button,
+textarea {
+  font-family: inherit;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+input::-ms-clear {
+  display: none;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
 }
+
+a,
+a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+ul li {
+  list-style: none;
+}
+
+img {
+  vertical-align: top;
+}
+
+p,
+dl,
+ol,
+ul,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 0 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: 400;
+}
+
+.spacer {
+  margin: 5px 0;
+}
+
+/* CUSTOM STYLES */
+@font-face {
+  font-family: 'hv'; /* Задайте имя для вашего шрифта */
+  src: url('./assets/hogvartskiy-volshebnik.woff') format('woff'); /* Укажите путь к WOFF-шрифту */
+  /* Дополнительные стили, если необходимо */
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y:hidden;
+  font-family: 'hv', sans-serif;
+  color: white;
+}
+
+.main-page {
+  height:100vh;
+  overflow-y:hidden;
+  width:100%;
+  background:url('./assets/firefox_GndqtzHIC3.png') center center / 100% 100% no-repeat;
+}
+
+.main-page__info {
+  transition: all .5s linear;
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: #422563;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 24px;
+  -webkit-box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+  -moz-box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+  box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+}
+
+.main-page__info-title {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.main-page__info-block {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  width: 100%;
+}
+
+button {
+  background: transparent;
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: 5px 10px;
+  color: white;
+  transition: all .2s linear;
+}
+
+ button:hover {
+  background: white;
+  color: black
+}
+
+
+.main-page__info input {
+  background: transparent;
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: 5px 10px;
+  color: white;
+  font-size: 16px;
+}
+
+.main-page__canvas {
+  position: absolute;
+  -webkit-box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+  -moz-box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+  box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+  transition: all .5s linear;
+}
+
+.inactive {
+  top: 50%;
+  left: 10px;
+  transform:translateY(-50%);
+}
+
+.active {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+.main-page__score-table {
+  background: #422563;
+  position: absolute;
+  top: 50%;
+  transform:translateY(-50%);
+  right:10px;
+  padding: 10px;
+  border-radius: 5px;
+  min-width: 150px;
+  -webkit-box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+  -moz-box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+  box-shadow: 0px 0px 39px 0px rgba(161, 38, 232, 0.59);
+}
+
+#gameLogger {
+  position: absolute;
+  width: 100%;
+  height:100%;
+  background: rgba(0,0,0, .5);
+  z-index: 10;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-size: 18px;
+}
+
+#scoreTable > p {
+  border-bottom: 1px solid white;
+  margin: 2px 0;
+  padding-bottom: 2px;
+}
+
+#scoreTable > p:hover {
+  cursor:pointer;
+  background: rgba(255,255,255, .2);
+}
+
+.main-page__guide {
+  display: none;
+  bottom: 0;
+  left:50%;
+  position: absolute;
+  transform: translateX(-50%);
+  color: black;
+  font-size: 24px;
+  background: antiquewhite;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding:5px;
+  z-index: 2;
+}
+
+.main-page__guide span {
+  font-family: sans-serif;
+  position: absolute;
+  top: -15px;
+  right: -5px;
+  color:black;
+  font-size: 32px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+#openGuide {
+  position: absolute;
+  bottom: 0;
+  left:50%;
+  font-size: 24px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transform: translateX(-50%);
+}
+
+#soundToggler {
+  display: block;
+  width:30px;
+  height:30px;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  cursor: pointer;
+  opacity: .7;
+}
+
+#soundToggler:hover {
+  opacity: 1;
+}
+
+
