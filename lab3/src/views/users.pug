@@ -1,0 +1,15 @@
+html(lang="ru")
+    head
+        title Список пользователей
+        link(href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css", rel="stylesheet")
+        link(rel="stylesheet", href="/scss/main.scss")
+
+    body.bg-gradient.bg-secondary
+        .container
+            h1.bg-dark.rounded.p-2 Список пользователей
+            .mt-2
+            .users
+              each user in users
+                  .mb-3.bg-dark.p-2.rounded
+                      include userCard.pug
+

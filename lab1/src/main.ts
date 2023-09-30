@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   toggleGameLoggerView(false);
   updateTableScores();
+  gameInfo.style.display = "none";
 
   let storedName = getPlayerName();
   if (storedName) {
@@ -185,8 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Функция для создания фигур
   function createPiece() {
-    const getRandomPiece = Math.floor(Math.random() * pieces.length);
-    const getRandomColorIndex = Math.floor(Math.random() * availableColors.length) + 1;
+    const randomInt = Math.random() * pieces.length;
+    const getRandomPiece = Math.floor(randomInt);
+    const getRandomColorIndex = Math.floor(randomInt) + 1;
     return {
       matrix: pieces[getRandomPiece],
       colorIndex: getRandomColorIndex,

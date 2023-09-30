@@ -1,0 +1,27 @@
+html(lang="ru")
+    head
+        title Пользователь #{user.name}
+        link(href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css", rel="stylesheet")
+        link(rel="stylesheet", href="/scss/main.scss")
+
+    body.bg-gradient.bg-secondary.text-white
+        .container
+            h1 Пользователь #{user.name}
+
+            include userCard.pug
+
+            h2 Друзья пользователя
+            ul
+              each friend in user.friends
+                  li
+                      a(href=`/user/${friend.name}`) #{friend.name}
+
+            h2 Новости друзей
+            ul
+              each friend in user.friends
+                  li
+                      li
+                          a(href=`/user/${friend.name}`).text-white #{friend.name}
+                      ul
+                        each news in friend.news
+                            li= news

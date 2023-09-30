@@ -1,0 +1,14 @@
+html(lang="ru")
+    head
+        title Список друзей пользователя
+        link(href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css", rel="stylesheet")
+        link(rel="stylesheet", href="/scss/main.scss")
+
+    body.bg-gradient.bg-secondary
+        .container.text-white
+            h1 Список друзей пользователя #{user.name}
+
+            ul
+              each friend in user.friends
+                  li
+                      a(href=`/user/${friend.name}`).text-white #{friend.name}

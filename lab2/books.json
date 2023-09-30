@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "title": "Война и мир",
+    "author": "Л. Н. Толстой",
+    "receiptDate": "2023-08-13",
+    "status": "Не в наличии",
+    "returnDate": "2023-09-17",
+    "takenBy": "Arthur1"
+  },
+  {
+    "id": 2,
+    "title": "Преступление и наказание",
+    "author": "Ф. М. Достоевский",
+    "receiptDate": "2023-08-12",
+    "status": "В наличии",
+    "returnDate": null,
+    "takenBy": null
+  },
+  {
+    "id": 3,
+    "title": "Евгений Онегин",
+    "author": "А. С. Пушкин",
+    "receiptDate": "2023-08-14",
+    "status": "Не в наличии",
+    "returnDate": "2023-09-13",
+    "takenBy": "Arthur2"
+  }
+]

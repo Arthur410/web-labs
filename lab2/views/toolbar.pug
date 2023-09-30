@@ -1,0 +1,32 @@
+link(rel="stylesheet", href="/scss/main.scss")
+
+.nav.toolbar
+    .sort
+        p Сортировать по
+        .sort__buttons
+            button.w3-button.w3-khaki.sort-button(data-sort-type='availability',
+                class=(sort === 'availability' ? 'active' : '')) Наличию
+            button.w3-button.w3-khaki.sort-button(data-sort-type='returnDate',
+                class=(sort === 'returnDate' ? 'active' : '')) Дате возврата
+            button.w3-button.w3-khaki.sort-button(data-sort-type='') Без фильтров
+
+    dialog.dialog
+        form(action=`/addBook`, method='POST').dialog__form
+            span.dialog__close x
+            label(for='title') Название книги:
+            input(type='text', id='title', name='title', required, value='')
+            .spacer
+            label(for='author') Автор:
+            input(type='text', id='author', name='author', required, value='')
+            .spacer
+            label(for='receiptDate') Дата выпуска:
+            input(type='date', id='receiptDate', name='receiptDate', required, value='')
+
+            .spacer
+            button(type='submit').w3-button.w3-khaki.dialog__submit Создать книгу
+
+    // Кнопка для открытия диалогового окна
+    button.add-book.w3-button.w3-khaki.w3-hover-light-green
+        p Создать книгу
+            svg(xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512")
+                path(d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z")

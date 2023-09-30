@@ -1,0 +1,19 @@
+link(rel="stylesheet", href="/scss/main.scss")
+link(rel="stylesheet", href="https://www.w3schools.com/w3css/4/w3.css")
+meta(name="viewport", content="width=device-width, initial-scale=1.0")
+
+.container
+    h1 Редактирование книги
+
+    form(action=`/edit/${editBook.id}`, method='POST').edit-form
+        label(for='title') Название книги:
+        input(type='text', name='title', id='title', value=editBook.title, placeholder='Введите название книги').edit-input
+
+        label(for='author') Автор:
+        input(type='text', name='author', id='author', value=editBook.author, placeholder='Введите автора книги').edit-input
+
+        label(for='receiptDate') Дата выпуска:
+        input(type='text', name='receiptDate', id='receiptDate', value=editBook.receiptDate, placeholder='Введите дату выпуска').edit-input
+
+        .spacer
+        button(type='submit').w3-button.w3-khaki.edit-button Сохранить изменения
