@@ -1,14 +1,20 @@
 $(document).ready(function () {
-  $.get('https://localhost:1338/api/users', function (users) {
-    const roleMapping = {'admin': 'Админ', 'user': 'Пользователь'};
-    const statusMapping = {
-      'unconfirmed': 'Не подтверждённый пользователь',
-      'active': 'Активный',
-      'blocked': 'Заблокированный'
-    };
-    const userContainer = $('.users');
+  // Get userId from the URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const userName = urlParams.get('userName');
+  // Fetch user data from the API
+  console.log(`https://localhost:1338/api/userView/${userName}`)
+  $.get(`https://localhost:1338/api/userView/${userName}`, function (user) {
+    // Check if the data was successfully fetched
+    if (user) {
+      const userContainer = $('.user__info');
+      const roleMapping = {'admin': 'Админ', 'user': 'Пользователь'};
+      const statusMapping = {
+        'unconfirmed': 'Не подтверждённый пользователь',
+        'active': 'Активный',
+        'blocked': 'Заблокированный'
+      };
 
-    users.forEach(user => {
       // Create a user card div
       const userCard = $('<div>').addClass('user row bg-dark');
 
@@ -71,8 +77,21 @@ $(document).ready(function () {
 
       // Append the userCard to the userContainer
       userContainer.append(userCard);
-    });
-  }).fail(function (error) {
-    console.error(error);
+
+      // Set friends information
+      const friendsList = user.friends.map(friend => `<li><a href="userView.html?userName=${friend.name}">${friend.name}</a></li>`).join('');
+      $('.user__friends').html(`<ul>${friendsList}</ul>`);
+
+      // Set friends news information
+      const friendsNewsList = user.friends.reduce((acc, friend) => {
+        const newsItems = friend.news.map(news => `<li>${news}</li>`).join('');
+        acc.push(`<ul><a href="userView.html?userName=${friend.name}">${friend.name}</a><ul>${newsItems}</ul></ul>`);
+        return acc;
+      }, []);
+      $('.user__friendsNews').html(friendsNewsList.join(''));
+    } else {
+      // Handle error when user data cannot be fetched
+      console.error('Failed to fetch user data');
+    }
   });
 });
