@@ -12,9 +12,9 @@ $(document).ready(function () {
       user.friends.forEach(function (friend) {
         const li = $('<li>');
         const link = $('<a>')
-          .attr('href', `userView.html?userName=${friend.name}`)
+          .attr('href', `userView.html?userName=${friend}`)
           .addClass('text-white')
-          .text(friend.name);
+          .text(friend);
         li.append(link);
         ul.append(li);
       });

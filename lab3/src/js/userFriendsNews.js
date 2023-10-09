@@ -14,33 +14,29 @@ $(document).ready(function () {
       // Create a container for the friends' news
       const container = $('<div>').addClass('container');
 
-      // Loop through the user's friends
       user.friends.forEach(function (friend) {
-        // Create a container for each friend
+        console.log(friend)
         const friendContainer = $('<div>').addClass('friend-news-container');
 
-        // Create a heading for the friend's name
         const friendHeading = $('<a>')
-          .text(friend.name)
-          .attr('href', `userView.html?userName=${friend.name}`);
+          .text(friend)
+          .attr('href', `userView.html?userName=${friend}`);
 
-        // Create an unordered list for the friend's news
         const newsList = $('<ul>');
 
-        // Loop through the news items for the friend
-        friend.news.forEach(function (news) {
-          const newsItem = $('<li>').text(news);
-          newsList.append(newsItem);
-        });
+        $.get(`https://localhost:1338/friendsNews/${friend}`,function (news) {
+          news.forEach(userNew => {
+            const newsItem = $('<li>').text(userNew);
+            newsList.append(newsItem);
+          })
+        })
 
         friendContainer.append(friendHeading, newsList);
         container.append(friendContainer);
       });
 
-      // Append the container to the body
       $('body').append(container);
     } else {
-      // Handle error when user data cannot be fetched
       console.error('Failed to fetch user data');
     }
   });

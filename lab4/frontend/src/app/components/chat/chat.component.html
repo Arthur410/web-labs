@@ -1,0 +1,27 @@
+<div class="container p-5">
+  <h1 id="status">{{ status }}</h1>
+  <mat-card class="p-3 gap-2" style="display:grid!important; grid-template-columns: 1fr 400px!important">
+    <mat-card class="p-2" id="messages">
+      <mat-card-title>Сообщения</mat-card-title>
+      <mat-card-content *ngFor="let message of messages">
+        <p [style.color]="message.includes('Артур Иванов') ? 'green' : 'red'">{{message}}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <form class="flex flex-col" (ngSubmit)="sendMessage()">
+      <mat-form-field>
+        <textarea matInput [(ngModel)]="inputMessage"
+                  name="message"
+                  placeholder="Введите сообщение"
+                  [required]="true"
+                  [cdkTextareaAutosize]="true"
+                  #autosize="cdkTextareaAutosize"
+                  [cdkAutosizeMinRows]="1"
+                  [cdkAutosizeMaxRows]="5"
+        ></textarea>
+      </mat-form-field>
+      <button color="primary" mat-raised-button type="submit">Отправить</button>
+    </form>
+  </mat-card>
+
+</div>

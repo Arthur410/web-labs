@@ -1,0 +1,11 @@
+<div class="container p-5">
+  <p *ngIf="!(authorizedUser$ | async) as user">Друзей нет...</p>
+
+  <div *ngIf="news">
+    <mat-card class="user-new__card flex flex-col mb-3 p-2" *ngFor="let newsItem of news;">
+      <mat-card-title>{{newsItem.name}}</mat-card-title>
+
+      <mat-card-content *ngFor="let userNews of newsItem.news;">{{userNews}}</mat-card-content>
+    </mat-card>
+  </div>
+</div>

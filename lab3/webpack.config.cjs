@@ -51,27 +51,27 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/views/users.pug',
-      filename: 'users.html',
+      filename: 'html/users.html', // Output HTML files to 'dist/html'
       chunks: ['users'],
     }),
     new HtmlWebpackPlugin({
       template: './src/views/userEdit.pug',
-      filename: 'userEdit.html',
+      filename: 'html/userEdit.html',
       chunks: ['userEdit'],
     }),
     new HtmlWebpackPlugin({
       template: './src/views/userFriends.pug',
-      filename: 'userFriends.html',
+      filename: 'html/userFriends.html',
       chunks: ['userFriends'],
     }),
     new HtmlWebpackPlugin({
       template: './src/views/userFriendsNews.pug',
-      filename: 'userFriendsNews.html',
+      filename: 'html/userFriendsNews.html',
       chunks: ['userFriendsNews'],
     }),
     new HtmlWebpackPlugin({
       template: './src/views/userView.pug',
-      filename: 'userView.html',
+      filename: 'html/userView.html',
       chunks: ['userView'],
     }),
     new MiniCssExtractPlugin({

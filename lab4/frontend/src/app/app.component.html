@@ -1,0 +1,28 @@
+<div class="container p-5">
+  <mat-toolbar
+    class="flex justify-between"
+  >
+    <nav class="flex gap-3">
+      <a mat-raised-button routerLink="/news">Новости</a>
+      <a mat-raised-button routerLink="/add-news">Добавить новость</a>
+      <a mat-raised-button routerLink="/chat">Мессенджер</a>
+      <div class="admin-button" *ngIf="(authorizedUser$ | async) as User">
+        <a target="_blank" mat-raised-button href="http://localhost:8177/web-labs/lab3/dist/html/users.html" *ngIf="User.role === 'admin'">Администрирование</a>
+      </div>
+      <a mat-raised-button routerLink="/login" *ngIf="!(authorizedUser$ | async)">Войти</a>
+    </nav>
+
+    <div *ngIf="(authorizedUser$ | async) as user">
+      <button mat-button [matMenuTriggerFor]="menu">
+        <img class="h-8" *ngIf="user.photoUrl !== null" [src]="user.photoUrl" alt="Фотография пользователя">
+        <mat-icon>keyboard_arrow_down</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item routerLink="/manage">Управление профилем</button>
+        <button (click)="logOut()" mat-menu-item class="hover:text-red-500">Выйти</button>
+      </mat-menu>
+    </div>
+  </mat-toolbar>
+</div>
+
+<router-outlet></router-outlet>
