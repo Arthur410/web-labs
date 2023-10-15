@@ -3,7 +3,7 @@ $(document).ready(function () {
   const userId = urlParams.get('userId');
 
   $.get(`https://localhost:1338/api/user/${userId}`,function (user) {
-    // Check if the data was successfully fetched
+    // Check if the #data was successfully fetched
     if (user) {
       // Set the page title
       $('title').text('Новости друзей');
@@ -37,7 +37,7 @@ $(document).ready(function () {
 
       $('body').append(container);
     } else {
-      console.error('Failed to fetch user data');
+      console.error('Failed to fetch user #data');
     }
   });
 });

@@ -2,10 +2,10 @@ $(document).ready(function () {
   // Get userId from the URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const userName = urlParams.get('userName');
-  // Fetch user data from the API
+  // Fetch user #data from the API
   console.log(`https://localhost:1338/api/userView/${userName}`)
   $.get(`https://localhost:1338/api/userView/${userName}`, function (user) {
-    // Check if the data was successfully fetched
+    // Check if the #data was successfully fetched
     if (user) {
       const userContainer = $('.user__info');
       const roleMapping = {'admin': 'Админ', 'user': 'Пользователь'};
@@ -97,8 +97,8 @@ $(document).ready(function () {
         })
       });
     } else {
-      // Handle error when user data cannot be fetched
-      console.error('Failed to fetch user data');
+      // Handle error when user #data cannot be fetched
+      console.error('Failed to fetch user #data');
     }
   });
 });

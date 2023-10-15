@@ -22,8 +22,8 @@ $(document).ready(function () {
       // Append the list to the container
       $('.container').append(ul);
     } else {
-      // Handle error when user data cannot be fetched
-      console.error('Failed to fetch user data');
+      // Handle error when user #data cannot be fetched
+      console.error('Failed to fetch user #data');
     }
   });
 });

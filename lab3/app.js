@@ -130,7 +130,7 @@ app.post('/api/users', (req, res) => {
   const newUser = req.body;
 
   if (!newUser || typeof newUser !== 'object') {
-    return res.status(400).json({ error: 'Invalid user data' });
+    return res.status(400).json({ error: 'Invalid user #data' });
   }
   const userId = users.length + 1;
 
