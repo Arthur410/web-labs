@@ -1,70 +1,78 @@
-$(document).ready(function() {
-  // Функция для создания HTML-шаблона для пользователя
-  function createUserCard(user) {
-    return `
-    <div class="mb-3 bg-dark p-2 rounded">
-      <div class="user row">
-        <div class="user__photo col-3">
-          <img src="${user.photoUrl}" alt="Фото пользователя" class="img-fluid" style="width:100%">
-        </div>
-        <div class="user__info col-9 d-flex flex-column">
-          <p>Имя: ${user.name}</p>
-          <div class="mt-2">
-            <p>Email: ${user.email}</p>
-          </div>
-          <div class="mt-2">
-            <p>Дата рождения: ${user.birthdate}</p>
-          </div>
-          <div class="mt-2">
-            <p>Роль: ${user.role}</p>
-          </div>
-          <div class="mt-2">
-            <p>Статус: ${user.status}</p>
-          </div>
-          <div class="mt-2">
-            <button class="btn btn-primary">
-              <a href="/edit/${user.id}">Редактировать</a>
-            </button>
-          </div>
-          <div class="mt-2">
-            <button class="btn btn-primary">
-              <a href="/friends/${user.id}">Друзья</a>
-            </button>
-          </div>
-          <div class="mt-2">
-            <button class="btn btn-primary">
-              <a href="/friendsNews/${user.id}">Новости друзей</a>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  }
+$(document).ready(function () {
+  $.get('https://localhost:1338/api/users', function (users) {
+    const roleMapping = {'admin': 'Админ', 'user': 'Пользователь'};
+    const statusMapping = {
+      'unconfirmed': 'Не подтверждённый пользователь',
+      'active': 'Активный',
+      'blocked': 'Заблокированный'
+    };
+    const userContainer = $('.users');
 
+    users.forEach(user => {
+      // Create a user card div
+      const userCard = $('<div>').addClass('user row bg-dark');
 
-  // Функция для загрузки и отображения пользователей
-  function loadUsers() {
-    $.ajax({
-      url: '/api/users', // Замените на правильный путь к вашему API для получения пользователей
-      method: 'GET',
-      success: function(users) {
-        // Обработка успешного ответа
-        // Очищаем контейнер .users перед добавлением новых пользователей
-        $('.users').empty();
+      // Create user photo div
+      const userPhoto = $('<div>').addClass('user__photo col-3');
 
-        // Создаем и добавляем HTML-шаблоны для каждого пользователя
-        users.forEach(function(user) {
-          const userCardHTML = createUserCard(user);
-          $('.users').append(userCardHTML);
-        });
-      },
-      error: function(error) {
-        console.error('Ошибка при загрузке пользователей:', error);
-      }
+      // Create an image element
+      const img = $('<img>').attr({
+        src: user.photoUrl,
+        alt: 'Фото пользователя',
+      }).addClass('img-fluid').css('width', '100%');
+
+      // Append the image to userPhoto
+      userPhoto.append(img);
+
+      // Create user info div
+      const userInfo = $('<div>').addClass('user__info col-9 d-flex flex-column');
+
+      // Create paragraphs for user info
+      const paragraphs = [
+        `Имя: ${user.name}`,
+        `Email: ${user.email}`,
+        `Дата рождения: ${user.birthdate}`,
+        `Роль: ${roleMapping[user.role]}`,
+        `Статус: ${statusMapping[user.status]}`,
+      ];
+
+      paragraphs.forEach(text => {
+        const p = $('<p>').text(text);
+        userInfo.append(p);
+      });
+
+      // Create a div for the buttons
+      const buttonsDiv = $('<div>').addClass('d-flex flex-column');
+
+      // Create Edit button
+      const editButton = $('<button>').addClass('btn-primary mt-2');
+      const editLink = $('<a>').attr('href', `userEdit.html?userId=${user.id}`).text('Редактировать');
+      editButton.append(editLink);
+
+      // Create Friends button
+      const friendsButton = $('<button>').addClass('btn-primary mt-2');
+      const friendsLink = $('<a>').attr('href', `userFriends.html?userId=${user.id}`).text('Друзья');
+      friendsButton.append(friendsLink);
+
+      // Create Friends News button
+      const friendsNewsButton = $('<button>').addClass('btn-primary mt-2');
+      const friendsNewsLink = $('<a>').attr('href', `userFriendsNews.html?userId=${user.id}`).text('Новости друзей');
+      friendsNewsButton.append(friendsNewsLink);
+
+      // Append buttons to the buttonsDiv
+      buttonsDiv.append(editButton);
+      buttonsDiv.append(friendsButton);
+      buttonsDiv.append(friendsNewsButton);
+
+      // Append userPhoto, userInfo, and buttonsDiv to the userCard
+      userCard.append(userPhoto);
+      userCard.append(userInfo);
+      userInfo.append(buttonsDiv); // Append buttonsDiv to userInfo
+
+      // Append the userCard to the userContainer
+      userContainer.append(userCard);
     });
-  }
-
-  // Вызываем функцию для загрузки и отображения пользователей при загрузке страницы
-  loadUsers();
+  }).fail(function (error) {
+    console.error(error);
+  });
 });

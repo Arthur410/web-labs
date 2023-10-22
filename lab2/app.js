@@ -18,10 +18,8 @@ app.get('/', (req, res) => {
 
 app.get('/api/books', (req, res) => {
   let sortedBooks = [...allBooks]; // Создаем копию массива книг для сортировки
-
   if (req.query.sort) {
     if (req.query.sort === 'availability') {
-      // Сортировка по полю "в наличии"
       sortedBooks = sortedBooks.sort((a, b) => {
         if (a.status === 'В наличии' && b.status !== 'В наличии') {
           return -1;
@@ -31,8 +29,6 @@ app.get('/api/books', (req, res) => {
         return 0;
       });
     } else if (req.query.sort === 'returnDate') {
-      // Сортировка по полю "дата возврата"
-
       sortedBooks = sortedBooks.sort((a, b) => {
         if (a.returnDate && b.returnDate) {
           return Date.parse(a.returnDate) - Date.parse(b.returnDate)

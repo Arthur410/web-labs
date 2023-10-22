@@ -1,18 +1,23 @@
 html(lang="ru")
     head
+        meta(charset='UTF-8')
         title Новости друзей
         link(href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css", rel="stylesheet")
-        link(rel="stylesheet", href="/scss/main.scss")
-
+        link(href="../scss/main.scss", rel="stylesheet")
+        script(src="https://code.jquery.com/jquery-3.7.1.min.js", integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=", crossorigin="anonymous")
+        script(src="../js/userFriendsNews.js")
     body.bg-gradient.bg-secondary.text-white
+        span.go-to-main
+            a(href="/web-labs/lab3/dist/html/users.html") Главная
         .container
-            h1 Новости друзей пользователя #{user.name}
+            h1 Новости друзей пользователя
+            //#{user.name}
 
-            ul
-              each friend in friendsNews
-                  li.border.border-white.mt-2.p-2
-                      a(href=`/user/${friend.name}`)
-                          h3 #{friend.name}
-                      ul
-                        each news in friend.news
-                            li= news
+            //ul
+            //  each friend in friendsNews
+            //      li.border.border-white.mt-2.p-2
+            //          a(href=`/user/${friend.name}`)
+            //              h3 #{friend.name}
+            //          ul
+            //            each news in friend.news
+            //                li= news

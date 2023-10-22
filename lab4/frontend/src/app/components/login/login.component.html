@@ -1,0 +1,35 @@
+<h1 class="flex justify-center text-2xl">Вход</h1>
+<div class="container flex justify-center justify-items-center">
+  <form class="form flex flex-col w-96 relative"  [formGroup]="loginIn" (ngSubmit)="onSubmit()">
+
+    <mat-form-field class="example-full-width">
+      <mat-label>Email</mat-label>
+
+      <input [required]="true" type="email" matInput placeholder="ex@ex.com" formControlName="email">
+
+      <mat-error *ngIf="loginIn.hasError('email') && !loginIn.hasError('required')">
+        Введите валидный email
+      </mat-error>
+
+      <mat-error *ngIf="!emailInput">
+        <strong>Поле обязательно для заполнения</strong>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Введите пароль</mat-label>
+
+      <input [required]="true" matInput placeholder="Пароль" [type]="hide ? 'password' : 'text'" formControlName="password">
+
+      <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+
+      <mat-error *ngIf="!passwordInput">
+        <strong>Поле обязательно для заполнения</strong>
+      </mat-error>
+    </mat-form-field>
+
+    <button type="submit" mat-raised-button color="primary">Отправить</button>
+
+    <a routerLink="/registration" class="text-s text-blue-400 absolute -bottom-10 -right-10">Не зарегистрированы?</a>
+  </form>
+</div>

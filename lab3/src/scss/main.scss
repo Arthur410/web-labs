@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+$spacer: 15px;
 
 body {
   font-family: 'Raleway', sans-serif;
@@ -32,6 +33,31 @@ body {
       list-style: none;
 
     }
+  }
+
+  button {
+    margin: 5px 0;
+    max-width: fit-content;
+  }
+
+  .row {
+    margin: 0!important;
+    padding: $spacer;
+
+  }
+
+  .users {
+    display: flex;
+    flex-direction: column;
+    gap: $spacer;
+  }
+
+  .go-to-main {
+    position: absolute;
+    top: $spacer;
+    left: $spacer;
+    display: block;
+    color: white;
   }
 }
 

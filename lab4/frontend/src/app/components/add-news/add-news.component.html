@@ -1,0 +1,22 @@
+<h1 class="flex justify-center text-2xl">Добавить новость</h1>
+<div class="container flex justify-center justify-items-center">
+  <form class="form flex flex-col w-96 relative"  [formGroup]="addNews" (ngSubmit)="onSubmit()">
+
+    <mat-form-field class="example-full-width">
+      <textarea matInput
+                placeholder="Что нового?"
+                formControlName="text"
+                [required]="true"
+                [cdkTextareaAutosize]="true"
+                #autosize="cdkTextareaAutosize"
+                [cdkAutosizeMinRows]="1"
+                [cdkAutosizeMaxRows]="5"></textarea>
+
+      <mat-error *ngIf="!textInput">
+        <strong>Для приличия что то нужно ввести</strong>
+      </mat-error>
+    </mat-form-field>
+
+    <button (click)="openDialog('250ms', '250ms')" type="submit" mat-raised-button color="primary">Отправить</button>
+  </form>
+</div>

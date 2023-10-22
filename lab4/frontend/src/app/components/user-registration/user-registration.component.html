@@ -1,0 +1,47 @@
+<h1 class="flex justify-center text-2xl">Регистрация</h1>
+<div class="container flex justify-center justify-items-center">
+  <form *ngIf="!isRegisteredOver" class="form flex flex-col w-96"  [formGroup]="signIn" (ngSubmit)="onSubmit()">
+    <mat-form-field>
+      <mat-label>Введите имя</mat-label>
+      <input [required]="true" matInput placeholder="Имя" formControlName="name">
+      <mat-icon matSuffix>group</mat-icon>
+      <mat-error *ngIf="!nameInput">
+        <strong>Поле обязательно для заполнения</strong>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Введите дату рождения</mat-label>
+      <input [required]="true" matInput [matDatepicker]="picker" formControlName="birthdate">
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker [disabled]="false" #picker></mat-datepicker>
+      <mat-error *ngIf="!birthdateInput">
+        <strong>Поле обязательно для заполнения</strong>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="example-full-width">
+      <mat-label>Email</mat-label>
+      <input [required]="true" type="email" matInput placeholder="Ex. pat@example.com" formControlName="email">
+      <mat-error *ngIf="signIn.hasError('email') && !signIn.hasError('required')">
+        Введите валидный email
+      </mat-error>
+      <mat-error *ngIf="!emailInput">
+        <strong>Поле обязательно для заполнения</strong>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Введите пароль</mat-label>
+      <input [required]="true" matInput placeholder="Пароль" [type]="hide ? 'password' : 'text'" formControlName="password">
+      <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+      <mat-error *ngIf="!passwordInput">
+        <strong>Поле обязательно для заполнения</strong>
+      </mat-error>
+    </mat-form-field>
+
+    <button type="submit" mat-raised-button color="primary">Отправить</button>
+  </form>
+
+  <mat-spinner *ngIf="isRegisteredOver"></mat-spinner>
+</div>
