@@ -22,7 +22,7 @@ const style = {
 function RegistrationPage() {
   const [formData, setFormData] = useState({
     name: '',
-    initialCapital: '',
+    initialValue: '',
     password: '',
   });
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -69,12 +69,12 @@ function RegistrationPage() {
         />
         <TextField
           required
-          id="initialCapital"
+          id="initialValue"
           label="Капитал"
-          type={'text'}
+          type={'number'}
           placeholder={'Начальный капитал'}
-          name="initialCapital"
-          value={formData.initialCapital}
+          name="initialValue"
+          value={formData.initialValue}
           onChange={handleInputChange}
         />
         <TextField

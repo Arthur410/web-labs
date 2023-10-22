@@ -8,19 +8,6 @@ const userReducer = (state = initialState, action: { type: any; payload: any; })
       return { currentUser: action.payload };
     case 'LOGOUT':
       return { currentUser: null };
-    case 'UPDATE_INITIAL_VALUE':
-      const { name, initialValue } = action.payload;
-      // Найти брокера в списке и обновляем его initialValue
-      const updatedBrokers = state.brokers.map(broker => {
-        if (broker.name === name) {
-          return { ...broker, initialCapital: initialValue };
-        }
-        return broker;
-      });
-      return {
-        ...state,
-        brokers: updatedBrokers,
-      };
     default:
       return state;
   }

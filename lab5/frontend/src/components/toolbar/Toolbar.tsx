@@ -10,33 +10,33 @@ function Toolbar() {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    // Вызываем действие выхода пользователя и удаляем информацию о текущем пользователе из стора и Local Storage
     dispatch(logout());
     localStorage.removeItem('currentUser');
   };
 
   return (
-    <nav>
-      <ul className={'flex gap-2'}>
+    <nav className={'py-5'}>
+      <img src={require('../../images/stocksLogo.png')} alt="Логотип" style={{position: 'absolute', top: '15px', left: '50%', width: '100px', height:'40px'}}/>
+      <ul className={'flex gap-2 pt-10 xl:pt-1'}>
         {currentUser ? (
-          <ul className={'flex items-center justify-between w-full'}>
-            <ul className={'flex gap-2'}>
+          <ul className={'flex items-center justify-between w-full max-lg:flex-row max-md:flex-col gap-2'}>
+            <ul className={'flex gap-2 max-sm:flex-col'}>
               <Link to="/brokers">
-                <Button variant="outlined">Брокеры</Button>
+                <Button className={'max-sm:w-32'} variant="outlined">Брокеры</Button>
               </Link>
               <Link to="/stocks">
-                <Button variant="outlined">Акции</Button>
+                <Button className={'max-sm:w-32'} variant="outlined">Акции</Button>
               </Link>
               <Link to="/trade">
-                <Button variant="outlined">Торговля</Button>
+                <Button className={'max-sm:w-32'} variant="outlined">Торговля</Button>
               </Link>
               <Link to="/settings">
-                <Button variant="outlined">Настройки</Button>
+                <Button className={'max-sm:w-32'} variant="outlined">Настройки</Button>
               </Link>
             </ul>
             <ul className={'flex justify-center items-center gap-2'}>
-              <Button variant="outlined" onClick={handleLogout} style={{color: 'red'}}>Выйти</Button>
-              <h1>{currentUser.name}</h1>
+              <Button className={'max-sm:w-32'} variant="outlined" onClick={handleLogout} style={{color: 'red'}}>Выйти</Button>
+              <h1 className={'text-cyan-800 font-bold'}>{currentUser.name.toUpperCase()}</h1>
             </ul>
           </ul>
         ) : (
