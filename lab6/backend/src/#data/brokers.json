@@ -1,0 +1,74 @@
+{
+  "brokers": [
+    {
+      "name": "Артур",
+      "initialValue": 10000,
+      "password": "123",
+      "quote": "Ваши инвестиции - наше дело.",
+      "ownedStocks": [
+        {
+          "symbol": "AAPL",
+          "amount": 31,
+          "spendMoney": 5100.25
+        }
+      ]
+    },
+    {
+      "name": "Боб",
+      "initialValue": 10000,
+      "password": "123",
+      "quote": "Мы заставляем деньги работать на вас.",
+      "ownedStocks": [
+        {
+          "symbol": "SBUX",
+          "amount": 12,
+          "spendMoney": 1300.6
+        }
+      ]
+    },
+    {
+      "name": "Крис",
+      "initialValue": 10000,
+      "password": "123",
+      "quote": "Инвестируйте с уверенностью.",
+      "ownedStocks": [
+        {
+          "symbol": "MSFT",
+          "amount": 55,
+          "spendMoney": 15000.4
+        }
+      ]
+    },
+    {
+      "name": "Артем",
+      "initialValue": 10000,
+      "password": "123",
+      "quote": "Рост капитала - наш приоритет.",
+      "ownedStocks": [
+        {
+          "symbol": "CSCO",
+          "amount": 9,
+          "spendMoney": 500.56
+        }
+      ]
+    },
+    {
+      "name": "Брок",
+      "initialValue": 500,
+      "password": "123",
+      "quote": "С нами ваш успех гарантирован.",
+      "ownedStocks": [
+        {
+          "symbol": "SBUX",
+          "amount": 12,
+          "spendMoney": 1150.6
+        },
+        {
+          "symbol": "CSCO",
+          "amount": 9,
+          "spendMoney": 440.56
+        }
+      ]
+    }
+  ]
+}
