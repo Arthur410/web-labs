@@ -1,13 +1,161 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/vite.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Vite + TS</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+    <style>
+        body {
+            color: white;
+            margin: 0;
+            font-family: 'Arial', sans-serif; /* Шрифт для body */
+        }
+
+        .main-app-page {
+            padding: 15px;
+            width: 100%;
+            height: 100vh;
+            background: url('./src/assets/mainbg.jpg') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background: black;
+            border: 1px solid darkred;
+            -webkit-box-shadow: 0 0 5px 1px darkred;
+            box-shadow: 0 0 5px 1px darkred;
+        }
+
+        .input-field {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .submit-button {
+            text-align: center;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+            background: darkred;
+            padding: 10px 15px;
+            transition: all .2s linear;
+        }
+
+        .submit-button:hover {
+            background: mediumvioletred;
+        }
+
+        .settings {
+            font-size: 10px;
+            background: black;
+            border: .2px solid darkred;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            -webkit-box-shadow: 0 0 5px 1px darkred;
+            box-shadow: 0 0 5px 1px darkred;
+        }
+
+        .arrow-container {
+            display: flex;
+            gap: 5px;
+        }
+
+        .arrow {
+            padding: 5px;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: .1px solid maroon;
+        }
+
+        .spacer {
+            margin: 5px;
+        }
+
+        #pacmanText {
+            text-shadow: 0 0 5px yellow;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <main class="main-app-page">
+        <h1 class="title">Добро пожаловать в игру <span id="pacmanText" style="color: yellow">PACMAN!</span></h1>
+
+        <div class="spacer"></div>
+
+        <form class="form-container">
+            <input id="nameInput" placeholder="Как вас зовут?" type="text" class="input-field">
+            <button type="button" class="submit-button" onclick="saveAndRedirect()">Играть!</button>
+        </form>
+
+        <div class="spacer"></div>
+
+        <div class="settings">
+            <span>Управление стрелками:</span>
+            <div class="spacer"></div>
+            <div class="arrow-container">
+                <span class="arrow">←</span>
+                <span class="arrow">→</span>
+                <span class="arrow">↑</span>
+                <span class="arrow">↓</span>
+            </div>
+            <div class="spacer"></div>
+            <span>Правила просты: собирать монетки и не врезаться в <span style="color: darkred">призраков 👻</span> !</span>
+            <br>
+            <span>Цель игры собрать все <span style="color: yellow">монетки 💰</span>!</span>
+        </div>
+    </main>
+
+</div>
+<script type="module" src="/src/main.ts"></script>
+<script>
+	function changePacmanColor() {
+		const pacmanText = document.getElementById('pacmanText');
+		const formContainer = document.querySelector('.form-container');
+		const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF']; // Ваши цвета
+
+		setInterval(() => {
+			const randomColor = colors[Math.floor(Math.random() * colors.length)];
+			pacmanText.style.color = randomColor;
+			pacmanText.style.textShadow = `0 0 5px ${randomColor}`;
+		}, 1000); // Изменение цвета каждую секунду
+	}
+
+	// Запускаем функцию при загрузке страницы
+	window.onload = changePacmanColor;
+	function saveAndRedirect() {
+		// Получаем значение из инпута
+		const playerName = document.getElementById('nameInput').value;
+
+		// Сохраняем в localStorage
+		localStorage.setItem('playerName', playerName);
+
+		// Переходим на другую страницу
+		window.location.href = 'game.html';
+	}
+
+</script>
+</body>
 </html>

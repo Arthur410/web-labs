@@ -126,7 +126,7 @@ app.get('/api/user/:userId', (req, res) => {
 });
 
 // ANGULAR INTERACTION
-app.post('/api/users', (req, res) => {
+app.post('/api/users', (req res) => {
   const newUser = req.body;
 
   if (!newUser || typeof newUser !== 'object') {

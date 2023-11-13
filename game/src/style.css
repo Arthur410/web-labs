@@ -1,4 +1,8 @@
 /************************DEFAULT***************************/
+@font-face {
+  font-family: 'Banana Brick';
+  src: url('./assets/fonts/Banana Brick.ttf') format('truetype');
+}
 
 * {
   padding: 0;
@@ -37,7 +41,7 @@ aside {
 html,
 body {
   overflow-x: hidden !important;
-  font-family: "Poppins", sans-serif;
+  font-family: "Banana Brick", sans-serif;
   max-height: 100%;
   width: 100%;
   font-size: 100%;

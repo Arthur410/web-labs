@@ -8,6 +8,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "compilerOptions": {
+    "resolveJsonModule": true
+  },
   "devDependencies": {
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
