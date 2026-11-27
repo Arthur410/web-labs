@@ -7,7 +7,10 @@ import Modal from '@mui/material/Modal';
 import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import React, {useEffect, useState} from 'react';
-import webSocketService from "../../services/WebSocketService";
+import webSocketService, { request } from "../../services/WebSocketService";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { logout } from "../../store/userActions";
 import BrokerCard from "./mixins/brokerCard";
 import {IBroker} from "../../interfaces/IBroker";
 
@@ -31,6 +34,9 @@ const style = {
 const INITIAL_CAPITAL_VALUE = 1000000;
 
 function BrokersPage() {
+  const currentName = useSelector((state: RootState) => state.user.currentUser?.name);
+  const dispatch = useDispatch();
+  const [error, setError] = useState("");
   const [brokers, setBrokers] = useState<IBroker[]>()
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -53,29 +59,16 @@ function BrokersPage() {
   });
 
   useEffect(() => {
+    const receive = (data: IBroker[]) => setBrokers(data);
+    webSocketService.on('brokers', receive);
     webSocketService.emit('brokers');
-
-    webSocketService.on('brokers', function (data) {
-      setBrokers(data);
-    });
-
-    return () => {
-      webSocketService.off('brokers');
-    };
-  }, []); // Пустой массив зависимостей для выполнения только один раз
+    return () => { webSocketService.off('brokers', receive); };
+  }, []);
 
   const handleChange = (updatedCapital: number, brokerName: string) => {
-    if (!brokers) return;
-
-    const updatedBrokers = brokers.map(broker => {
-      if (broker.name === brokerName) {
-        broker.initialValue = updatedCapital;
-      }
-      return broker;
-    });
-
-    setBrokers(updatedBrokers);
-  }
+    setBrokers(previous => previous?.map(item =>
+      item.name === brokerName ? { ...item, initialValue: updatedCapital } : item));
+  };
 
   const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
     const {name, value} = e.target;
@@ -86,39 +79,30 @@ function BrokersPage() {
   };
 
 
-  const handleAddBroker = () => {
-    // Здесь отправляем данные регистрации через WebSocket
-    webSocketService.emit('register', formData);
-
-    webSocketService.on('registerSuccess', (newBroker) => {
+  const handleAddBroker = async () => {
+    setError("");
+    try {
+      await request<IBroker>('register', { ...formData, initialValue: Number(formData.initialValue) });
       setSuccessMessage('Брокер успешно добавлен!');
-      console.log(successMessage);
-      handleModalOpen();
       webSocketService.emit('brokers');
-    });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Не удалось добавить брокера');
+    }
+  };
 
-    webSocketService.on('registerFailure', (err) => {
-      alert(err)
-    })
-  }
-
-  const handleDeleteBroker = (name: string) => {
-    // Здесь отправляем данные удаления брокера через WebSocket
-    webSocketService.emit('deleteBroker', name);
-
-    // Обработка успешного удаления для обновления списка брокеров
-    webSocketService.on('deleteBrokerSuccess', () => {
-      webSocketService.emit('brokers');
-    });
-
-    // Обработка ошибки удаления, если брокер с указанным именем не найден
-    webSocketService.on('deleteBrokerFailure', (err) => {
-      alert(err);
-    });
+  const handleDeleteBroker = async (name: string) => {
+    setError("");
+    try {
+      await request<boolean>('deleteBroker', name);
+      dispatch(logout());
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Не удалось удалить профиль');
+    }
   };
 
   return (
     <div className="container mx-auto p-1 flex flex-col gap-3">
+      {error && <p role="alert">{error}</p>}
       {!brokers &&
       <CircularProgress color="inherit"/>
       }
@@ -127,6 +111,7 @@ function BrokersPage() {
         <BrokerCard
           key={broker.name}
           broker={broker}
+          editable={broker.name === currentName}
           onChange={(capital: number) => handleChange(capital, broker.name)}
           onDelete={(name: string) => handleDeleteBroker(name)}/>
       ))}
@@ -152,6 +137,7 @@ function BrokersPage() {
           </Box>}
 
           {!successMessage && <div className="flex !flex-col max-w-2xl w-full gap-3">
+            {error && <p role="alert">{error}</p>}
             <Typography id="modal-modal-title" variant="h6" component="h2">
               Новый брокер
             </Typography>

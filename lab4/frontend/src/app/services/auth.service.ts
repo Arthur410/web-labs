@@ -2,32 +2,20 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {Observable, tap} from 'rxjs';
-import {UserService} from "./user.service";
+import { map, Observable, tap } from 'rxjs';
+import { IUser } from '../interfaces/IUser';
+import { UserService } from './user.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   constructor(private httpClient: HttpClient, private userService: UserService) {}
 
-  login(email: string, password: string): Observable<any> {
-    const serverUrl = 'https://localhost:1338'; // Используйте правильный URL вашего сервера
-
-    const loginData = { email, password };
-
-    return this.httpClient.post(`${serverUrl}/api/login`, loginData).pipe(
-      tap((response: any) => {
-        if (response) {
-          const authenticatedUser = response;
-
-          this.userService.setAuthorizedUser(authenticatedUser);
-
-          return authenticatedUser;
-        } else {
-          throw new Error('Ошибка аутентификации');
-        }
-      })
+  login(email: string, password: string): Observable<IUser> {
+    return this.httpClient.post<{ user: IUser; token: string }>(
+      `${this.userService.serverUrl}/api/login`, { email, password }
+    ).pipe(
+      tap(({ user, token }) => this.userService.setSession(user, token)),
+      map(({ user }) => user)
     );
   }
 }

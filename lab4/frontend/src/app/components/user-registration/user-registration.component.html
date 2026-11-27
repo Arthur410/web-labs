@@ -41,7 +41,8 @@
     </mat-form-field>
 
     <button type="submit" mat-raised-button color="primary">Отправить</button>
-  </form>
+    <p *ngIf="error" role="alert">{{ error }}</p>
+</form>
 
   <mat-spinner *ngIf="isRegisteredOver"></mat-spinner>
 </div>

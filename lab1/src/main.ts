@@ -45,45 +45,56 @@ const availableColors = [
 
 
 
+type Piece = { matrix: number[][]; x: number; y: number; colorIndex: number };
+type Score = { playerName: string; score: number };
+
+function element<T extends HTMLElement>(id: string, type: { new(): T }): T {
+  const node = document.getElementById(id);
+  if (!(node instanceof type)) throw new Error(`Элемент ${id} не найден или имеет неверный тип`);
+  return node;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const firstLevelTickRate = 1000;
   const secondLevelTickRate = 500;
   const thirdLevelTickRate = 250;
 
-  const canvas = document.getElementById('canvas');
-  const canvasContext = canvas.getContext('2d');
+  const canvas = element('canvas', HTMLCanvasElement);
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Canvas 2D недоступен');
+  const canvasContext: CanvasRenderingContext2D = context;
   const field = createField(10, 20);
 
-  let piece;
+  let piece: Piece;
   let currentScore = 0;
-  let gameLoop;
+  let gameLoop: ReturnType<typeof setInterval> | undefined;
   let isGameOver = false;
 
   let isAudioEnabled = true;
 
-  const playerNameText = document.getElementById('playerName');
-  const playerNameInput = document.getElementById('playerNameInput');
-  const playerNameButton = document.getElementById('playerNameButton');
+  const playerNameText = element('playerName', HTMLElement);
+  const playerNameInput = element('playerNameInput', HTMLInputElement);
+  const playerNameButton = element('playerNameButton', HTMLElement);
 
-  const scoreContainer = document.getElementById('currentScore');
-  const startButton = document.getElementById('startButton');
-  const gameInfo = document.getElementById('gameInfo');
+  const scoreContainer = element('currentScore', HTMLElement);
+  const startButton = element('startButton', HTMLElement);
+  const gameInfo = element('gameInfo', HTMLElement);
 
-  const canvasContainer = document.getElementById('canvasContainer');
-  const infoContainer = document.getElementById('infoContainer');
-  const loginInfo = document.getElementById('loginInfo');
+  const canvasContainer = element('canvasContainer', HTMLElement);
+  const infoContainer = element('infoContainer', HTMLElement);
+  const loginInfo = element('loginInfo', HTMLElement);
 
-  const scoreTable = document.getElementById('scoreTable');
-  const gameLogger = document.getElementById('gameLogger');
-  let restartGame = document.getElementById('restartGame');
+  const scoreTable = element('scoreTable', HTMLElement);
+  const gameLogger = element('gameLogger', HTMLElement);
+  let restartGame = element('restartGame', HTMLElement);
 
-  const closeGuide = document.getElementById('closeGuide');
-  const openGuide = document.getElementById('openGuide');
-  const guideBlock = document.getElementById('guideBlock');
-  const gameLogMessage = document.getElementById('gameLogMessage');
+  const closeGuide = element('closeGuide', HTMLElement);
+  const openGuide = element('openGuide', HTMLElement);
+  const guideBlock = element('guideBlock', HTMLElement);
+  const gameLogMessage = element('gameLogMessage', HTMLElement);
 
-  const soundToggler = document.getElementById('soundToggler')
-  const soundTogglerIcon = document.getElementById('soundTogglerIcon')
+  const soundToggler = element('soundToggler', HTMLElement)
+  const soundTogglerIcon = element('soundTogglerIcon', HTMLElement)
 
   toggleGameLoggerView(false);
   updateTableScores();
@@ -100,11 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
     canvasContainer.classList.add('inactive');
   }
 
-  function playAudio(name) {
+  function playAudio(name: 'death' | 'coin' | 'win') {
     if (!isAudioEnabled) return;
 
     const audio = new Audio();
-    audio.src = `./src/assets/${name}.mp3`;
+    audio.src = new URL(`./assets/${name}.mp3`, import.meta.url).href;
     audio.autoplay = true;
   }
 
@@ -139,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginInfo.style.display = "none";
   }
 
-  function toggleGameLoggerView(isShow) {
+  function toggleGameLoggerView(isShow: boolean) {
     if (isShow) {
       gameLogger.style.opacity = "1";
       gameLogger.style.zIndex = "1";
@@ -164,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function drawSquare(x, y, colorIndex) {
+  function drawSquare(x: number, y: number, colorIndex: number) {
     const SQUARE_SIZE = 24;
 
     canvasContext.fillStyle = availableColors[colorIndex - 1];
@@ -174,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Функция для создания поля
-  function createField(cols, rows) {
+  function createField(cols: number, rows: number): number[][] {
     const matrix = [];
 
     for (let row = 0; row < rows; row++) {
@@ -185,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Функция для создания фигур
-  function createPiece() {
+  function createPiece(): Piece {
     const randomInt = Math.random() * pieces.length;
     const getRandomPiece = Math.floor(randomInt);
     const getRandomColorIndex = Math.floor(randomInt) + 1;
@@ -238,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function rotate() {
     const matrix = piece.matrix;
-    const tempMatrix = [];
+    const tempMatrix: number[][] = [];
 
     for (let row = 0; row < matrix[0].length; row++) {
       tempMatrix[row] = [];
@@ -254,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function movePiece(dir) {
+  function movePiece(dir: number) {
     piece.x += dir;
 
     if (hasCollision()) {
@@ -268,6 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hasCollision()) {
       piece.y--;
       merge();
+      clearLines();
       piece = createPiece();
 
       if (hasCollision()) {
@@ -289,42 +301,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function clearLines() {
-    for (let row = field.length - 1; row >= 0; row--) {
-      if (field[row].every(cell => cell !== 0)) {
-        field.splice(row, 1);
-        field.unshift(new Array(10).fill(0));
-        currentScore++;
+    const remaining = field.filter(row => row.some(cell => cell === 0));
+    const cleared = field.length - remaining.length;
+    if (!cleared) return;
 
-        if (currentScore > 2) {
-          clearInterval(gameLoop);
-          gameLoop = setInterval(update, secondLevelTickRate);
-          playAudio('win');
-        }
+    const oldScore = currentScore;
+    currentScore += cleared;
+    const emptyRows = Array.from({ length: cleared }, () => new Array(field[0].length).fill(0));
+    field.splice(0, field.length, ...emptyRows, ...remaining);
 
-        if (currentScore > 3) {
-          clearInterval(gameLoop);
-          gameLoop = setInterval(update, thirdLevelTickRate);
-          playAudio('win');
-        }
-
-        playAudio('coin');
-      }
+    const tickRate = (score: number) => score > 3 ? thirdLevelTickRate : score > 2 ? secondLevelTickRate : firstLevelTickRate;
+    if (tickRate(currentScore) !== tickRate(oldScore)) {
+      clearInterval(gameLoop);
+      gameLoop = setInterval(update, tickRate(currentScore));
+      playAudio('win');
     }
+    playAudio('coin');
   }
 
   function update(isIntervalMode = true) {
     if (isIntervalMode) {
       dropPiece();
-      updateScore();
     }
-
+    updateScore();
     drawField();
-    clearLines();
-    drawPiece();
+    if (!isGameOver) drawPiece();
   }
 
   function updateScore() {
-    scoreContainer.textContent = currentScore;
+    scoreContainer.textContent = String(currentScore);
   }
 
   function drawPiece() {
@@ -341,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function handleKeyPress(event) {
+  function handleKeyPress(event: KeyboardEvent) {
     if (isGameOver) return;
 
     switch (event.key) {
@@ -367,21 +372,23 @@ document.addEventListener('DOMContentLoaded', () => {
     piece = createPiece();
     currentScore = 0;
     field.forEach(row => row.fill(0));
-    scoreContainer.textContent = currentScore;
+    scoreContainer.textContent = String(currentScore);
     gameLoop = setInterval(update, firstLevelTickRate);
     drawField();
   }
 
-  function getBestScores() {
-    const storedScores = localStorage.getItem('bestScores');
-    if (storedScores) {
-      return JSON.parse(storedScores);
-    } else {
+  function getBestScores(): Score[] {
+    try {
+      const scores = JSON.parse(localStorage.getItem('bestScores') || '[]');
+      return Array.isArray(scores)
+        ? scores.filter(item => item && typeof item.playerName === 'string' && Number.isFinite(item.score))
+        : [];
+    } catch {
       return [];
     }
   }
 
-  function addBestScore(newScore) {
+  function addBestScore(newScore: Score) {
     const bestScores = getBestScores();
     bestScores.push(newScore);
 
@@ -397,11 +404,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateTableScores() {
     const scores = getBestScores();
 
-    scoreTable.innerHTML = ''
-    for (let i = 0; i < scores.length; i++) {
-      scoreTable.innerHTML +=
-        `<p>${scores[i].playerName}: ${scores[i].score}</p>`
-    }
+    scoreTable.replaceChildren(...scores.map(({ playerName, score }) => {
+      const row = document.createElement('p');
+      row.textContent = `${playerName}: ${score}`;
+      return row;
+    }));
   }
 
   restartGame.addEventListener('click', () => {
@@ -452,9 +459,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   soundToggler?.addEventListener('click', () => {
     if (isAudioEnabled) {
-      soundTogglerIcon.setAttribute('src', './src/assets/soundOff.svg')
+      soundTogglerIcon.setAttribute('src', new URL('./assets/soundOff.svg', import.meta.url).href)
     } else {
-      soundTogglerIcon.setAttribute('src', './src/assets/soundOn.svg')
+      soundTogglerIcon.setAttribute('src', new URL('./assets/soundOn.svg', import.meta.url).href)
     }
     isAudioEnabled = !isAudioEnabled;
   })

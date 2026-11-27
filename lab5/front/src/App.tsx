@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import BrokersPage from "./components/brokersPage/BrokersPage";
 import SettingsPage from "./components/settingsPage/SettingsPage";
 import StocksPage from "./components/stocksPage/StocksPage";
@@ -11,34 +11,41 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import Toolbar from "./components/toolbar/Toolbar";
-import { Provider } from 'react-redux'; // Импортируйте Provider из react-redux
+import { Provider, useDispatch, useSelector } from 'react-redux'; // Импортируйте Provider из react-redux
 import store from './store/store'; // Импортируйте ваш Redux-стор
-import { setUser } from './store/userActions';
+import { logout } from './store/userActions';
+import socket from './services/WebSocketService';
+import type { RootState } from './store/store';
 
+
+function RequireBroker({ children }: { children: React.ReactElement }) {
+  const broker = useSelector((state: RootState) => state.user.currentUser);
+  return broker ? children : <Navigate to="/login" replace />;
+}
+
+function SocketSession() {
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    localStorage.removeItem('currentUser');
+    const reset = () => { dispatch(logout()); };
+    socket.on('disconnect', reset);
+    return () => { socket.off('disconnect', reset); };
+  }, [dispatch]);
+  return null;
+}
 
 function App() {
-  let currentUser;
-  const initializeApp = () => {
-    // @ts-ignore
-    currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (currentUser) {
-      store.dispatch(setUser(currentUser)); // setUser - действие для установки текущего пользователя
-    }
-  };
-
-  // Вызов функции инициализации приложения при загрузке
-  initializeApp();
-
   return (
     <Provider store={store}>
+      <SocketSession />
       <BrowserRouter>
         <div className="container mx-auto p-2">
           <Toolbar />
           <Routes>
-            <Route path="/brokers" element={<BrokersPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/stocks" element={<StocksPage />} />
-            <Route path="/trade" element={<TradePage />} />
+            <Route path="/brokers" element={<RequireBroker><BrokersPage /></RequireBroker>} />
+            <Route path="/settings" element={<RequireBroker><SettingsPage /></RequireBroker>} />
+            <Route path="/stocks" element={<RequireBroker><StocksPage /></RequireBroker>} />
+            <Route path="/trade" element={<RequireBroker><TradePage /></RequireBroker>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegistrationPage />} />
           </Routes>

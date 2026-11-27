@@ -3,8 +3,9 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { Link, useNavigate } from 'react-router-dom';
-import webSocketService from "../../services/WebSocketService";
+import { request } from "../../services/WebSocketService";
 import Typography from '@mui/material/Typography';
+import { IBroker } from '../../interfaces/IBroker';
 import Modal from '@mui/material/Modal';
 
 const style = {
@@ -30,6 +31,7 @@ function RegistrationPage() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
@@ -40,15 +42,15 @@ function RegistrationPage() {
     });
   };
 
-  const handleRegistration = () => {
-    // Здесь отправляем данные регистрации через WebSocket
-    webSocketService.emit('register', formData);
-
-    // Обработка успешной регистрации для вывода сообщения и перенаправления пользователя
-    webSocketService.on('registerSuccess', (newBroker) => {
-      setSuccessMessage(`Регистрация успешна. Добро пожаловать, ${newBroker.name}!`);
+  const handleRegistration = async () => {
+    setError('');
+    try {
+      const broker = await request<IBroker>('register', { ...formData, initialValue: Number(formData.initialValue) });
+      setSuccessMessage(`Регистрация успешна. Добро пожаловать, ${broker.name}!`);
       handleOpen();
-    });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Не удалось зарегистрироваться');
+    }
   };
 
   return (
@@ -87,6 +89,7 @@ function RegistrationPage() {
           value={formData.password}
           onChange={handleInputChange}
         />
+        {error && <p role="alert">{error}</p>}
         <Button variant="outlined" onClick={handleRegistration}>
           Отправить
         </Button>

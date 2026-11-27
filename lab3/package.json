@@ -6,8 +6,9 @@
   "scripts": {
     "build": "webpack --mode production",
     "start": "webpack serve --open",
-    "test": "jest",
-    "dev": "webpack --mode development --watch"
+    "test": "node --test app.test.js",
+    "dev": "webpack --mode development --watch",
+    "serve": "node app.js"
   },
   "jest": {
     "transform": {

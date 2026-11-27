@@ -8,7 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import SendIcon from '@mui/icons-material/Send';
 import DeleteIcon from '@mui/icons-material/Delete';
-import webSocketService from "../../../services/WebSocketService";
+import { request } from "../../../services/WebSocketService";
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import {IBroker} from "../../../interfaces/IBroker";
 
@@ -28,11 +28,11 @@ const style = {
   p: 4,
 };
 
-function BrokerCard(props: { onChange: Function, broker:IBroker, onDelete:Function }) {
+function BrokerCard(props: { onChange: (capital: number) => void, broker: IBroker, editable: boolean, onDelete: (name: string) => void }) {
   const [capitalMode, setCapitalMode] = useState(false)
 
   const [formCapital, setFormCapital] = useState(props.broker.initialValue);
-  const [realCapital, setRealCapital] = useState(props.broker.initialValue);
+  const [error, setError] = useState("");
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -42,10 +42,15 @@ function BrokerCard(props: { onChange: Function, broker:IBroker, onDelete:Functi
     setFormCapital(Number(event.target.value));
   };
 
-  const handleUpdateCapital = () => {
-    webSocketService.emit('updateInitialValue', { name: props.broker.name, initialValue: formCapital });
-    props.onChange(formCapital);
-    setCapitalMode(false);
+  const handleUpdateCapital = async () => {
+    setError("");
+    try {
+      const updated = await request<IBroker>('updateInitialValue', { name: props.broker.name, initialValue: formCapital });
+      props.onChange(updated.initialValue);
+      setCapitalMode(false);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Не удалось обновить капитал');
+    }
   };
 
   const handleDeleteBroker = (isDelete: boolean) => {
@@ -90,7 +95,7 @@ function BrokerCard(props: { onChange: Function, broker:IBroker, onDelete:Functi
 
         <div className={'flex gap-5 items-center justify-center p-1 max-sm:flex-col'}>
           {!capitalMode && <>
-            <p className={'cursor-pointer text-green-600'} onClick={() => setCapitalMode(true)}>
+            <p className={'cursor-pointer text-green-600'} onClick={() => { if (props.editable) setCapitalMode(true); }}>
               <AttachMoneyIcon/>
               Капитал: {props.broker.initialValue}
             </p>
@@ -108,8 +113,9 @@ function BrokerCard(props: { onChange: Function, broker:IBroker, onDelete:Functi
               <Button onClick={handleUpdateCapital} variant="contained" endIcon={<SendIcon/>}/>
             </FormControl>
           </>}
-          <Button size="small" onClick={handleOpen} color="error" variant="contained"
-                  startIcon={<DeleteIcon/>}>Удалить</Button>
+          {error && <p role="alert">{error}</p>}
+          {props.editable && <Button size="small" onClick={handleOpen} color="error" variant="contained"
+                  startIcon={<DeleteIcon/>}>Удалить</Button>}
         </div>
       </div>
     </>

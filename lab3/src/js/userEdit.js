@@ -14,7 +14,7 @@ function fetchUserData() {
   // Make an AJAX request to fetch user #data
   $.get(`https://localhost:1338/api/user/${userId}`, function (editUser) {
     const form = document.createElement('form');
-    form.setAttribute('action', `https://localhost:1338/edit/${editUser.id}`);
+    form.setAttribute('action', `/edit/${editUser.id}`);
     form.setAttribute('method', 'POST');
     form.classList.add('edit-form', 'flex-column', 'd-flex', 'bg');
 
@@ -69,7 +69,7 @@ function fetchUserData() {
     roleLabel.setAttribute('for', 'role');
     roleLabel.textContent = 'Роль пользователя:';
     const roleSelect = document.createElement('select');
-    roleSelect.setAttribute('name', 'role');
+    roleSelect.disabled = true;
     roleSelect.setAttribute('id', 'role');
     const roleOptions = ['admin', 'user'];
     roleOptions.forEach(optionValue => {
@@ -89,7 +89,7 @@ function fetchUserData() {
     statusLabel.setAttribute('for', 'status');
     statusLabel.textContent = 'Статус пользователя:';
     const statusSelect = document.createElement('select');
-    statusSelect.setAttribute('name', 'status');
+    statusSelect.disabled = true;
     statusSelect.setAttribute('id', 'status');
     const statusOptions = ['unconfirmed', 'active', 'blocked'];
     statusOptions.forEach(optionValue => {
@@ -105,6 +105,17 @@ function fetchUserData() {
     });
     form.appendChild(statusLabel);
     form.appendChild(statusSelect);
+
+    const passwordLabel = document.createElement('label');
+    passwordLabel.htmlFor = 'edit-password';
+    passwordLabel.textContent = 'Пароль профиля';
+    const password = document.createElement('input');
+    password.id = 'edit-password';
+    password.name = 'password';
+    password.type = 'password';
+    password.autocomplete = 'current-password';
+    password.required = true;
+    form.append(passwordLabel, password);
 
 // Create submit button
     const submitButton = document.createElement('button');

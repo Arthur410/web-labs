@@ -4,8 +4,8 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import React, { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom';
-import webSocketService from "../../services/WebSocketService";
+import { useNavigate } from 'react-router-dom';
+import { request } from "../../services/WebSocketService";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -41,7 +41,7 @@ function SettingsPage() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (e: any) => {
@@ -60,15 +60,20 @@ function SettingsPage() {
     });
   };
 
-  const handleStartTrading = () => {
-    if (!formData.tradeStartDate || !formData.tradeSimulationSpeed) {
-      alert('Введите все нужные поля!');
+  const handleStartTrading = async () => {
+    setError('');
+    const date = formData.tradeStartDate;
+    if (!date?.isValid()) {
+      setError('Укажите дату торгов');
       return;
     }
-
-    webSocketService.emit('startTrading', formData.tradeSimulationSpeed, formData.tradeSimulationSpeed * 4, formData.tradeStartDate)
-    setSuccessMessage('Настройки были успешно заданы!')
-    handleOpen()
+    try {
+      await request<boolean>('startTrading', { date: date.toISOString(), tickSeconds: Number(formData.tradeSimulationSpeed) });
+      setSuccessMessage('Торги запущены');
+      handleOpen();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Не удалось запустить торги');
+    }
   };
 
   return (
@@ -83,6 +88,7 @@ function SettingsPage() {
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'en-gb'}>
           <DatePicker
             disablePast
+            disableFuture
             value={formData.tradeStartDate}
             onChange={handleDateChange}
             slotProps={{

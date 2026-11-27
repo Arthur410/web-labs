@@ -3,8 +3,8 @@ $(document).ready(function () {
   const urlParams = new URLSearchParams(window.location.search);
   const userName = urlParams.get('userName');
   // Fetch user #data from the API
-  console.log(`https://localhost:1338/api/userView/${userName}`)
-  $.get(`https://localhost:1338/api/userView/${userName}`, function (user) {
+  console.log(`https://localhost:1338/api/userView/${encodeURIComponent(userName)}`)
+  $.get(`https://localhost:1338/api/userView/${encodeURIComponent(userName)}`, function (user) {
     // Check if the #data was successfully fetched
     if (user) {
       const userContainer = $('.user__info');
@@ -79,23 +79,20 @@ $(document).ready(function () {
       userContainer.append(userCard);
 
       // Set friends information
-      const friendsList = user.friends.map(friend => `<li><a href="userView.html?userName=${friend}">${friend}</a></li>`).join('');
-      $('.user__friends').html(`<ul>${friendsList}</ul>`);
-      // acc.push(`<ul><a href="userView.html?userName=${friend}">${friend}</a><ul>${newsItems}</ul></ul>`);
-      let newsList = '';
+      const friends = $('<ul>');
+      for (const friend of user.friends) {
+        const href = `userView.html?userName=${encodeURIComponent(friend)}`;
+        friends.append($('<li>').append($('<a>').attr('href', href).text(friend)));
 
-      // Set friends news information
-      user.friends.forEach(async friend => {
-        await $.get(`https://localhost:1338/friendsNews/${friend}`,function (news) {
-          news.forEach(userNew => {
-            newsList += `<li>${userNew}</li>`
-          })
-
-          const friendsNewsList = `<ul><a href="userView.html?userName=${friend}">${friend}</a><ul>${newsList}</ul></ul>`
-          $('.user__friendsNews').append(friendsNewsList)
-          newsList = '';
-        })
-      });
+        // Set friends news information
+        const entries = $('<ul>');
+        const section = $('<div>').append($('<a>').attr('href', href).text(friend), entries);
+        $('.user__friendsNews').append(section);
+        $.get(`https://localhost:1338/friendsNews/${encodeURIComponent(friend)}`, news => {
+          entries.append(news.map(item => $('<li>').text(item)));
+        });
+      }
+      $('.user__friends').empty().append(friends);
     } else {
       // Handle error when user #data cannot be fetched
       console.error('Failed to fetch user #data');

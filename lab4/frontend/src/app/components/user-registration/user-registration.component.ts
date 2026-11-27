@@ -20,6 +20,7 @@ export class UserRegistrationComponent {
   });
 
   hide = true;
+  error = '';
   isRegisteredOver = false;
   get nameInput() { return this.signIn.get('nameInput'); }
   get birthdateInput() { return this.signIn.get('birthdateInput'); }
@@ -42,13 +43,14 @@ export class UserRegistrationComponent {
       newUser.status = null;
       newUser.friends = null;
 
-      this.httpClient.post(`${serverUrl}/api/users`, newUser).subscribe();
-      this.isRegisteredOver = true;
-
-      setTimeout(() => {
-        this.isRegisteredOver = false;
-        this.router.navigate(['/login'])
-      }, 500)
+      this.error = '';
+      this.httpClient.post(`${serverUrl}/api/users`, newUser).subscribe({
+        next: () => {
+          this.isRegisteredOver = true;
+          this.router.navigate(['/login']);
+        },
+        error: () => { this.error = 'Не удалось создать профиль. Проверьте данные и попробуйте снова.'; },
+      });
     }
   }
 }

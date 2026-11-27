@@ -12,7 +12,7 @@ $(document).ready(function () {
       user.friends.forEach(function (friend) {
         const li = $('<li>');
         const link = $('<a>')
-          .attr('href', `userView.html?userName=${friend}`)
+          .attr('href', `userView.html?userName=${encodeURIComponent(friend)}`)
           .addClass('text-white')
           .text(friend);
         li.append(link);
