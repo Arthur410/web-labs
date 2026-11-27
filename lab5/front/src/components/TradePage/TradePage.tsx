@@ -8,31 +8,22 @@ function TradePage() {
 	const [stocks, setStocks] = useState<IStock[]>();
 	const [tradeDate, setTradeDate] = useState<Date>();
 
-	useEffect(() => {
-		webSocketService.emit('stocks');
-		webSocketService.emit('getStartTradeDate')
+  useEffect(() => {
+    const receive = (data: IStock[]) => setStocks(data);
+    const receiveDate = (date: string | null) => setTradeDate(date ? new Date(date) : undefined);
+    webSocketService.on('stocks', receive);
+    webSocketService.on('updateStockData', receive);
+    webSocketService.on('getStartTradeDate', receiveDate);
+    webSocketService.emit('stocks');
+    webSocketService.emit('getStartTradeDate');
+    return () => {
+      webSocketService.off('stocks', receive);
+      webSocketService.off('updateStockData', receive);
+      webSocketService.off('getStartTradeDate', receiveDate);
+    };
+  }, []);
 
-
-		webSocketService.on('stocks', function (data) {
-			setStocks(data);
-		});
-
-		webSocketService.on(`updateStockData`, function (data) {
-			webSocketService.emit('stocks');
-		});
-
-		webSocketService.on('getStartTradeDate', function (date: Date) {
-			if (!date || new Date(date).toLocaleDateString('ru') !== new Date().toLocaleDateString('ru')) return;
-
-			setTradeDate(new Date(date))
-		})
-
-		return () => {
-			webSocketService.off('stocks');
-		};
-	}, []);
-
-	let counter = 0;
+	const tradingStocks = stocks?.filter(stock => stock.isTrading);
 	return (
 		<div className={'container'}>
 			{tradeDate && (
@@ -46,21 +37,16 @@ function TradePage() {
 				</>
 			)}
 			<Box className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-				{stocks && stocks.map(stock => {
-					if (!stock.isTrading) {
-						counter += 1;
-						return;
-					}
-
+				{tradingStocks?.map(stock => {
 					return (
-						<div className='flex flex-col items-center'>
+						<div key={stock.symbol} className='flex flex-col items-center'>
 							<img style={{width: '30px', height:'30px'}} src={require(`../../images/${stock.symbol}.png`)} alt="Акция"/>
 							<LineChart chartData={stock}/>
 						</div>
 					)
 				})}
 			</Box>
-			{counter === stocks?.length && (
+			{tradingStocks?.length === 0 && (
 				<div className="flex flex-col justify-center items-center w-full">
 					<h1 className="font-bold">Акций не найдено... Выберите для торговли нужные акции!</h1>
 					<img src={require('../../images/Suffer.png')} alt="There is no stocks"/>

@@ -17,6 +17,7 @@
       </mat-error>
     </mat-form-field>
 
-    <button (click)="openDialog('250ms', '250ms')" type="submit" mat-raised-button color="primary">Отправить</button>
-  </form>
+    <button type="submit" mat-raised-button color="primary">Отправить</button>
+    <p *ngIf="error" role="alert">{{ error }}</p>
+</form>
 </div>

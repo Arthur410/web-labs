@@ -14,6 +14,7 @@ import { NewsDialogComponent } from "../news-dialog/news-dialog.component";
 })
 export class AddNewsComponent implements OnInit {
   user: IUser | undefined;
+  error = '';
 
   constructor(
     private httpClient: HttpClient,
@@ -40,20 +41,24 @@ export class AddNewsComponent implements OnInit {
 
 
       if (this.user && news) {
-        this.user.news?.push(news.text)
-        this.userService.setAuthorizedUser(this.user)
-        this.httpClient.post(`${serverUrl}/addNews/${userId}`, news).subscribe();
+        this.httpClient.post(`${serverUrl}/addNews/${userId}`, news, this.userService.authorization())
+          .subscribe({
+            next: () => {
+              this.userService.updateAuthorizedUser();
+              this.addNews.reset();
+              this.openDialog('0ms', '0ms');
+            },
+            error: () => { this.error = 'Не удалось опубликовать новость'; },
+          });
       }
     }
   }
 
   openDialog(enterAnimationDuration: string, exitAnimationDuration: string): void {
-    if (this.addNews.valid) {
-      this.dialog.open(NewsDialogComponent, {
+    this.dialog.open(NewsDialogComponent, {
         width: '250px',
         enterAnimationDuration,
         exitAnimationDuration,
       });
-    }
   }
 }

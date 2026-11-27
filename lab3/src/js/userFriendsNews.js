@@ -20,11 +20,11 @@ $(document).ready(function () {
 
         const friendHeading = $('<a>')
           .text(friend)
-          .attr('href', `userView.html?userName=${friend}`);
+          .attr('href', `userView.html?userName=${encodeURIComponent(friend)}`);
 
         const newsList = $('<ul>');
 
-        $.get(`https://localhost:1338/friendsNews/${friend}`,function (news) {
+        $.get(`https://localhost:1338/friendsNews/${encodeURIComponent(friend)}`,function (news) {
           news.forEach(userNew => {
             const newsItem = $('<li>').text(userNew);
             newsList.append(newsItem);

@@ -14,36 +14,37 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok) {
         const data = await response.json();
 
-        books.innerHTML = '';
-        data.forEach(book => {
-          const booksItem = document.createElement('div');
-          booksItem.classList.add('books_item')
-
-          booksItem.innerHTML = `
-            <span class="book_item-img"></span>
-              <div class="spacer"></div>
-              
-              <p class="book_item-title">${book.title}</p>
-              <div class="spacer"></div>
-              
-              <p class="book_item-title">${book.author}</p>
-              <div class="spacer"></div>
-              
-              <p>${book.status}</p>
-              <div class="spacer"></div>
-              <p>Дата выпуска - ${book.receiptDate}</p>
-              <div class="spacer"></div>
-              
-              ${book.returnDate ? `<p>Дата возврата - ${book.returnDate}</p><div class="spacer"></div>` : ``}
-              <button class="books_item-more w3-button w3-khaki">
-                    <a href="/view/${book.id}">Подробнее</a>          
-              </button>
-              <button class="books_item-delete w3-button w3-red" data-book-id=${book.id}>
-                Удалить    
-              </button>
-          `;
-          books.appendChild(booksItem);
+        const cards = data.map(book => {
+          const card = document.createElement('div');
+          card.className = 'books_item';
+          const append = (tag, className = '', text = '') => {
+            const element = document.createElement(tag);
+            element.className = className;
+            element.textContent = text;
+            card.appendChild(element);
+            return element;
+          };
+          append('span', 'book_item-img');
+          const fields = [
+            ['book_item-title', book.title],
+            ['book_item-title', book.author],
+            ['', book.status],
+            ['', 'Дата выпуска - ' + book.receiptDate],
+          ];
+          if (book.returnDate) fields.push(['', 'Дата возврата - ' + book.returnDate]);
+          for (const [className, value] of fields) {
+            append('div', 'spacer');
+            append('p', className, value);
+          }
+          append('div', 'spacer');
+          const details = append('a', 'books_item-more w3-button w3-khaki', 'Подробнее');
+          details.href = '/view/' + encodeURIComponent(book.id);
+          const remove = append('button', 'books_item-delete w3-button w3-red', 'Удалить');
+          remove.type = 'button';
+          remove.dataset.bookId = book.id;
+          return card;
         });
+        books.replaceChildren(...cards);
 
       } else {
         console.error('Ошибка при выполнении запроса');

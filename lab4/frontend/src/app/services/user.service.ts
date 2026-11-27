@@ -1,47 +1,66 @@
 // user.service.ts
 
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { IUser } from '../interfaces/IUser';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
-  constructor(private httpClient:HttpClient) {
-  }
-  serverUrl = 'https://localhost:1338'
+  readonly serverUrl = 'https://localhost:1338';
+  private token?: string;
+  private readonly authorizedUserSubject = new BehaviorSubject<IUser | undefined>(undefined);
+  readonly authorizedUser$ = this.authorizedUserSubject.asObservable();
 
-  private authorizedUserSubject = new BehaviorSubject<IUser | undefined>(undefined);
-  authorizedUser$: Observable<IUser | undefined> = this.authorizedUserSubject.asObservable();
+  constructor(private httpClient: HttpClient) {}
+
+  authorization() {
+    return this.token ? { headers: { Authorization: `Bearer ${this.token}` } } : {};
+  }
+
+  setSession(user: IUser, token: string) {
+    this.token = token;
+    this.setAuthorizedUser(user);
+  }
 
   setAuthorizedUser(user: IUser | undefined) {
     this.authorizedUserSubject.next(user);
-    localStorage.setItem('loginedUser', JSON.stringify(user));
+  }
+
+  logOut() {
+    this.httpClient.post(`${this.serverUrl}/api/logout`, null, this.authorization())
+      .subscribe({ error: () => {} });
+    this.token = undefined;
+    this.setAuthorizedUser(undefined);
   }
 
   getAllUsers() {
-    return this.httpClient.get(`${this.serverUrl}/api/allNames`)
+    return this.httpClient.get<string[]>(`${this.serverUrl}/api/allNames`);
   }
 
   updateAuthorizedUser() {
-    this.httpClient.get(`${this.serverUrl}/api/user/${this.authorizedUserSubject.value?.id}`).subscribe(user => {
-      this.setAuthorizedUser(user as IUser)
-    })
+    const user = this.getAuthorizedUser();
+    if (!user) return;
+    this.httpClient.get<IUser>(`${this.serverUrl}/api/user/${user.id}`).subscribe({
+      next: updated => {
+        if (this.getAuthorizedUser()?.id === user.id) this.setAuthorizedUser(updated);
+      },
+      error: () => {},
+    });
   }
 
   deleteFriend(friend: string) {
-    this.httpClient.delete(`${this.serverUrl}/api/removeFriend/${this.authorizedUserSubject.value?.id}/${friend}`).subscribe(val => {
-      this.updateAuthorizedUser()
-    })
+    const user = this.getAuthorizedUser();
+    if (!user) return;
+    this.httpClient.delete(`${this.serverUrl}/api/removeFriend/${user.id}/${encodeURIComponent(friend)}`,
+      this.authorization()).subscribe({ next: () => this.updateAuthorizedUser(), error: () => {} });
   }
 
   addFriend(friend: string) {
-    const userId = this.authorizedUserSubject.value?.id;
-    this.httpClient.post(`${this.serverUrl}/api/addFriend/${userId}`, {friend}).subscribe(val => {
-      this.updateAuthorizedUser()
-    })
+    const user = this.getAuthorizedUser();
+    if (!user) return;
+    this.httpClient.post(`${this.serverUrl}/api/addFriend/${user.id}`, { friend },
+      this.authorization()).subscribe({ next: () => this.updateAuthorizedUser(), error: () => {} });
   }
 
   getAuthorizedUser(): IUser | undefined {

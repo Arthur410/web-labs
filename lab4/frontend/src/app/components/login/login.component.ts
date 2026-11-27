@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { UserService } from "../../services/user.service";
 
 @Component({
   selector: 'app-login',
@@ -14,8 +13,7 @@ import { UserService } from "../../services/user.service";
 export class LoginComponent  {
   constructor(
     private authService: AuthService,
-    private router: Router,
-    private userService: UserService) {}
+    private router: Router) {}
 
   loginIn: FormGroup = new FormGroup({
     email: new FormControl('', [Validators.email, Validators.required]),
@@ -23,6 +21,7 @@ export class LoginComponent  {
   });
 
   hide = true;
+  error = '';
 
   get emailInput() { return this.loginIn.get('emailInput'); }
   get passwordInput() { return this.loginIn.get('passwordInput'); }
@@ -31,11 +30,10 @@ export class LoginComponent  {
     if (this.loginIn.valid) {
       const { email, password } = this.loginIn.value;
 
-      this.authService.login(email, password).subscribe((user) => {
-        if (user) {
-          this.userService.setAuthorizedUser(user); // Установка authorizedUser через UserService
-          this.router.navigate(['/news']);
-        }
+      this.error = '';
+      this.authService.login(email, password).subscribe({
+        next: () => this.router.navigate(['/news']),
+        error: () => { this.error = 'Не удалось войти. Проверьте почту и пароль.'; },
       });
     }
   }

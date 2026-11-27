@@ -3,8 +3,9 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { Link, useNavigate } from 'react-router-dom';
-import webSocketService from "../../services/WebSocketService";
+import { request } from "../../services/WebSocketService";
 import { useDispatch } from 'react-redux';
+import { IBroker } from '../../interfaces/IBroker';
 import { setUser } from '../../store/userActions';
 
 function LoginPage() {
@@ -12,7 +13,7 @@ function LoginPage() {
     name: '',
     password: '',
   });
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -24,21 +25,15 @@ function LoginPage() {
     });
   };
 
-  const handleLogin = () => {
-    // Здесь отправляем данные аутентификации через WebSocket
-    webSocketService.emit('login', formData);
-
-    // Перед переходом на /brokers, вы можете обработать успешный логин и перенаправить пользователя
-    webSocketService.on('loginSuccess', (user) => {
-      dispatch(setUser(user));
-      localStorage.setItem('currentUser', JSON.stringify(user));
+  const handleLogin = async () => {
+    setError('');
+    try {
+      const broker = await request<IBroker>('login', formData);
+      dispatch(setUser(broker));
       navigate('/brokers');
-    });
-
-    // Обработка неудачного логина для подсветки инпутов в красный цвет
-    webSocketService.on('loginFailure', (errorMessage) => {
-      setError(errorMessage);
-    });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Не удалось войти');
+    }
   };
 
   return (
@@ -55,7 +50,7 @@ function LoginPage() {
           name="name"
           value={formData.name}
           onChange={handleInputChange}
-          error={error !== null}
+          error={Boolean(error)}
         />
         <TextField
           required
@@ -66,7 +61,7 @@ function LoginPage() {
           name="password"
           value={formData.password}
           onChange={handleInputChange}
-          error={error !== null}
+          error={Boolean(error)}
         />
         <Button variant="outlined" onClick={handleLogin}>
           Отправить

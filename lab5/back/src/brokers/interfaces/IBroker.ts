@@ -1,5 +1,5 @@
 export interface IBroker {
-  name: string,
-  initialValue: number,
-  password: string,
+  name: string;
+  initialValue: number;
+  quote?: string;
 }

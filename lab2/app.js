@@ -1,9 +1,9 @@
 
 const express = require('express');
 const app = express();
+// Подключение JSON-файла с данными о книгах
 const allBooks = require('./books.json');
-const {log} = require("nodemon/lib/utils"); // Подключение JSON-файла с данными о книгах
-const bodyParser = require('body-parser');
+let nextBookId = Math.max(0, ...allBooks.map(book => book.id)) + 1;
 app.set('view engine', 'pug');
 
 app.use(express.static('public'));
@@ -45,30 +45,23 @@ app.get('/api/books', (req, res) => {
   res.json(sortedBooks); // Отправляем отсортированный список книг в формате JSON
 });
 
-app.use(bodyParser.json());
+app.use(express.json());
+
+const editableFields = ['title', 'author', 'receiptDate', 'status', 'returnDate', 'takenBy'];
+
+function readBookFields(body) {
+  if (!body || typeof body !== 'object') return {};
+  return Object.fromEntries(editableFields
+    .filter(field => typeof body[field] === 'string')
+    .map(field => [field, body[field].trim()]));
+}
+
 app.post('/addBook', (req, res) => {
-  const { title, author, receiptDate, status, returnDate, takenBy } = req.body;
-  // Находим последнюю книгу в массиве allBooks
-  const lastBook = allBooks[allBooks.length - 1];
+  const fields = readBookFields(req.body);
+  if (!fields.title || !fields.author) return res.status(400).send('Укажите название и автора');
 
-  // Генерируем новый ID, увеличивая последний ID на 1
-  const newBookId = lastBook ? lastBook.id + 1 : 1;
-
-  // Создаем новую книгу
-  const newBook = {
-    id: newBookId,
-    title,
-    author,
-    receiptDate,
-    status,
-    returnDate,
-    takenBy
-  };
-
-  // Добавляем новую книгу в массив allBooks
-  allBooks.push(newBook);
-
-  console.log(newBook)
+  // Генерируем ID независимо от позиции книги в массиве.
+  allBooks.push({ ...fields, id: nextBookId++ });
 
   // Отправляем ответ клиенту (например, перенаправляем на главную страницу)
   res.redirect('/');
@@ -94,7 +87,6 @@ app.get('/view/:bookId', (req, res) => {
 app.get('/edit/:bookId', (req, res) => {
   const bookId = req.params.bookId;
   const editBook = allBooks.find(book => book.id === Number(bookId));
-  const updatedBookData = req.body; // Получаем данные из формы
 
   if (!editBook) {
     res.status(404).send('Книга не найдена');
@@ -106,15 +98,14 @@ app.get('/edit/:bookId', (req, res) => {
 
 
 app.post('/edit/:bookId', (req, res) => {
-  const bookId = req.params.bookId - 1;
-  const updatedBookData = req.body; // Получаем данные из формы
+  const bookId = Number(req.params.bookId);
+  const book = allBooks.find(book => book.id === bookId);
+  if (!book) return res.status(404).send('Книга не найдена');
 
-  allBooks[bookId] = {
-    ...allBooks[bookId],
-    ...updatedBookData
-  }
-
-  res.redirect(`/view/${bookId + 1}`);
+  const fields = readBookFields(req.body);
+  if (fields.title === '' || fields.author === '') return res.status(400).send('Укажите название и автора');
+  Object.assign(book, fields);
+  res.redirect(`/view/${bookId}`);
 });
 
 app.delete('/api/books/:bookId', (req, res) => {
@@ -132,6 +123,10 @@ app.delete('/api/books/:bookId', (req, res) => {
   }
 });
 
-app.listen(1337, () => {
-  console.log('Server is running on 1337');
-})
+if (require.main === module) {
+  app.listen(1337, '127.0.0.1', () => {
+    console.log('Server is running on 1337');
+  });
+}
+
+module.exports = app;

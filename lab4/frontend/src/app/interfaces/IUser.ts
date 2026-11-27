@@ -8,5 +8,4 @@ export interface IUser {
   status?: string;
   friends?: string[];
   news?: string[];
-  password: string;
 }

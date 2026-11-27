@@ -1,17 +1,20 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../../store/userActions';
+import socket from '../../services/WebSocketService';
+import { RootState } from '../../store/store';
 import Button from '@mui/material/Button';
 
 function Toolbar() {
-  // @ts-ignore
-  const currentUser = useSelector(state => state.user.currentUser);
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     dispatch(logout());
-    localStorage.removeItem('currentUser');
+    if (socket.connected) socket.emit('logout');
+    navigate('/login');
   };
 
   return (

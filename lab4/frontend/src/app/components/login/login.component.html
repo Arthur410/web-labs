@@ -28,6 +28,7 @@
       </mat-error>
     </mat-form-field>
 
+    <p *ngIf="error" role="alert">{{ error }}</p>
     <button type="submit" mat-raised-button color="primary">Отправить</button>
 
     <a routerLink="/registration" class="text-s text-blue-400 absolute -bottom-10 -right-10">Не зарегистрированы?</a>

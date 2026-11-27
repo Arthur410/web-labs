@@ -1,20 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {UserService} from "../../services/user.service";
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
 })
-export class ChatComponent implements OnInit {
-  status: string;
+export class ChatComponent implements OnInit, OnDestroy {
+  status = 'Подключение…';
   messages: string[] = [];
   inputMessage: string = '';
-  name: string;
+  name = 'Аноним';
 
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
-    this.name = this.userService.getAuthorizedUser().name;
+    this.name = this.userService.getAuthorizedUser()?.name ?? 'Аноним';
 
     this.connectWebSocket();
   }
@@ -24,11 +24,14 @@ export class ChatComponent implements OnInit {
   }
 
   printMessage(value: string) {
-    const name = this.userService.getAuthorizedUser().name
-    console.log(value.includes(name))
-    this.messages.push(value);
+    this.messages = [...this.messages, value].slice(-100);
   }
-  ws: WebSocket;
+
+  private ws?: WebSocket;
+
+  ngOnDestroy() {
+    this.ws?.close();
+  }
 
   connectWebSocket() {
     const ws = new WebSocket('ws://localhost:9999');
@@ -36,13 +39,14 @@ export class ChatComponent implements OnInit {
     ws.onopen = () => this.setStatus('Состояние: ONLINE');
     ws.onclose = () => this.setStatus('Состояние: DISCONNECTED');
 
+    ws.onerror = () => this.setStatus('Ошибка соединения');
     ws.onmessage = response => this.printMessage(response.data);
 
     this.ws = ws;
   }
 
   sendMessage() {
-    if (this.ws && this.inputMessage.trim() !== '') {
+    if (this.ws?.readyState === WebSocket.OPEN && this.inputMessage.trim() !== '') {
       this.ws.send(this.name + ": " + this.inputMessage);
       this.inputMessage = '';
     }

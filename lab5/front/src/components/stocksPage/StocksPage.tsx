@@ -4,7 +4,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import React, { useEffect, useState } from 'react';
-import webSocketService from "../../services/WebSocketService";
+import webSocketService, { request } from "../../services/WebSocketService";
 import StockCard from './mixins/stockCard';
 import {IStock} from "../../interfaces/IStock";
 
@@ -43,43 +43,39 @@ function StocksPage() {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
   useEffect(() => {
+    const receive = (data: IStock[]) => setStocks(data);
+    webSocketService.on('stocks', receive);
     webSocketService.emit('stocks');
+    return () => { webSocketService.off('stocks', receive); };
+  }, []);
 
-    webSocketService.on('stocks', function(data) {
-      setStocks(data);
-    });
-
-    return () => {
-      webSocketService.off('stocks');
-    };
-  }, []); // Пустой массив зависимостей для выполнения только один раз
-
-  const toggleSelectMode = () => {
-    setSelectMode(prevState => {
-      if (prevState) {
-        webSocketService.emit('updateStocks', stocks);
-
-        webSocketService.on('updateStocks', res => {
-          setSuccessMessage(res);
-          handleOpen();
-        })
-      }
-
-      return !prevState;
-    });
-  }
+  const toggleSelectMode = async () => {
+    if (!selectMode) {
+      setSelectMode(true);
+      return;
+    }
+    setError('');
+    try {
+      await request<boolean>('updateStocks', stocks?.map(({ symbol, isTrading }) => ({ symbol, isTrading })));
+      setSuccessMessage('Список акций сохранён');
+      setSelectMode(false);
+      handleOpen();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Не удалось сохранить акции');
+    }
+  };
 
   const stockUpdateHandle = (updatedStock: IStock) => {
-    stocks?.forEach(stock => {
-      stock.isTrading = stock.name === updatedStock.name ? updatedStock.isTrading : stock.isTrading;
-    })
-  }
+    setStocks(previous => previous?.map(stock => stock.symbol === updatedStock.symbol ? updatedStock : stock));
+  };
 
   return (
     <div className="container mx-auto p-1 grid grid-cols-3 gap-2 max-md:grid-cols-2 max-sm:grid-cols-1">
+      {error && <p role="alert">{error}</p>}
       <Modal
         open={open}
         onClose={handleClose}
